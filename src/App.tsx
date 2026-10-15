@@ -1,3 +1,9 @@
+import { CurrencyConvertor } from './views/CurrencyConvertor';
+
 export function App() {
-  return <div>Empty app.</div>;
+  return (
+    <div>
+      <CurrencyConvertor />
+    </div>
+  );
 }
