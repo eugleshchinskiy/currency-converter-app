@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# To avoid leaking the task on GitHub
+TASK.md
