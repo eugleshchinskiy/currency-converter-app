@@ -25,3 +25,6 @@ dist-ssr
 
 # To avoid leaking the task on GitHub
 TASK.md
+
+
+*.env
