@@ -1,4 +1,4 @@
-import { CurrencyConvertor } from './views/CurrencyConvertor';
+import { CurrencyConvertor } from './views/currency-convertor/CurrencyConvertor';
 
 export function App() {
   return (

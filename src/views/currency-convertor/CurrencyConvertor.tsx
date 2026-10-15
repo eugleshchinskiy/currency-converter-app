@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { currencyApi } from '../api/currency';
-import type { Currency } from '../types/currency';
+import { currencyApi } from '../../api/currency';
+import type { Currency } from '../../types/currency';
+import { CurrencySelector } from '../../components/currency-selector/CurrencySelector';
+import { useCurrencySelectors } from './hooks/useCurrencySelectors';
 
 type CurrencyState =
   | { status: 'idle'; currencies: null; error: null }
@@ -15,7 +17,9 @@ export function CurrencyConvertor() {
     currencies: null,
     error: null,
   });
+  const { selectorFrom, selectorTo, onChangeFrom, onChangeTo } = useCurrencySelectors();
 
+  // TODO: move to hooks.
   useEffect(() => {
     const fetchCurrencies = async () => {
       setCurrencyState({ status: 'loading', currencies: null, error: null });
@@ -23,6 +27,7 @@ export function CurrencyConvertor() {
       try {
         const currencies = await currencyApi.fetchCurrencies();
 
+        // TODO: Add auto select from/to on fetch.
         setCurrencyState({
           status: 'success',
           currencies,
@@ -51,7 +56,21 @@ export function CurrencyConvertor() {
   }
 
   if (currencyState.status === 'success') {
-    return <p>Fetched {currencyState.currencies.length} currencies.</p>;
+    return (
+      <div>
+        <p>Fetched {currencyState.currencies.length} currencies.</p>
+        <CurrencySelector
+          currencies={currencyState.currencies}
+          value={selectorFrom}
+          onChange={onChangeFrom}
+        />
+        <CurrencySelector
+          currencies={currencyState.currencies}
+          value={selectorTo}
+          onChange={onChangeTo}
+        />
+      </div>
+    );
   }
 
   return null;
