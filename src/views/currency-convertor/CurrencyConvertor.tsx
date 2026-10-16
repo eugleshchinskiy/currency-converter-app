@@ -4,6 +4,8 @@ import { currencyApi } from '../../api/currency';
 import type { Currency } from '../../types/currency';
 import { CurrencySelector } from '../../components/currency-selector/CurrencySelector';
 import { useCurrencySelectors } from './hooks/useCurrencySelectors';
+import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
+import { useConvertInput } from './hooks/useCurrencyInputs';
 
 type CurrencyState =
   | { status: 'idle'; currencies: null; error: null }
@@ -18,6 +20,7 @@ export function CurrencyConvertor() {
     error: null,
   });
   const { selectorFrom, selectorTo, onChangeFrom, onChangeTo } = useCurrencySelectors();
+  const { convertValue, onChangeConvertValue, isConvertValueValid } = useConvertInput();
 
   // TODO: move to hooks.
   useEffect(() => {
@@ -59,16 +62,25 @@ export function CurrencyConvertor() {
     return (
       <div>
         <p>Fetched {currencyState.currencies.length} currencies.</p>
-        <CurrencySelector
-          currencies={currencyState.currencies}
-          value={selectorFrom}
-          onChange={onChangeFrom}
-        />
-        <CurrencySelector
-          currencies={currencyState.currencies}
-          value={selectorTo}
-          onChange={onChangeTo}
-        />
+        <div style={{ display: 'flex', gap: 4 }}>
+          <div>
+            <CurrencySelector
+              currencies={currencyState.currencies}
+              value={selectorFrom}
+              onChange={onChangeFrom}
+            />
+            <CurrencyInput value={convertValue} onChange={onChangeConvertValue} />
+          </div>
+          <div>
+            <CurrencySelector
+              currencies={currencyState.currencies}
+              value={selectorTo}
+              onChange={onChangeTo}
+            />
+            <p>Value valid: {isConvertValueValid().toString()}</p>
+            <CurrencyInput value={convertValue} onChange={onChangeConvertValue} readOnly={true} />
+          </div>
+        </div>
       </div>
     );
   }
