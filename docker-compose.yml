@@ -1,0 +1,7 @@
+services:
+  converter:
+    build: ./
+    ports:
+      - 3000:5173
+    env_file:
+      - ./.env
