@@ -14,10 +14,10 @@ To use locally:
 
 ### TODO
 
-[] Add some UI lib
-[] Add error handling
-[] Add loading handling
-[] Add styling
-[] Move out hooks
-[] Add basic accessibility
-[] Add Docker + Docker compose
+- [x] Add some UI lib
+- [x] Add error handling
+- [x] Add loading handling
+- [x] Add styling
+- [x] Move out hooks
+- [] Add basic accessibility
+- [] Add Docker + Docker compose
