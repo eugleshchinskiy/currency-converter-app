@@ -35,8 +35,8 @@ export function useCurrencyState({ onChangeFrom, onChangeTo }: UseConvertStatePa
           value: currencies,
           error: null,
         });
-        onChangeFrom(DEFAULT_FROM || (currencies.length > 0 ? currencies[0].code : ''));
-        onChangeTo(DEFAULT_TO || (currencies.length > 0 ? currencies[0].code : ''));
+        onChangeFrom(DEFAULT_FROM || (currencies.length > 0 ? currencies[0].short_code : ''));
+        onChangeTo(DEFAULT_TO || (currencies.length > 0 ? currencies[0].short_code : ''));
       } catch (e) {
         const code = e instanceof AxiosError ? e.response?.status : null;
 
