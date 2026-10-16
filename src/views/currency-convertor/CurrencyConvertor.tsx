@@ -105,35 +105,41 @@ export function CurrencyConvertor() {
   }, [isConvertValueValid, getConvertValueNumber, selectorFrom, selectorTo, convertValue]);
 
   // TODO: Add proper visual handling for all statues.
-  if (currencyState.status === 'loading') {
-    return <p>Loading...</p>;
-  }
 
   if (currencyState.status === 'error') {
     return <p>Error: {currencyState.error}</p>;
   }
 
-  if (currencyState.status === 'success') {
+  if (currencyState.status === 'success' || currencyState.status === 'loading') {
+    const currencies = currencyState.value || [];
+
     return (
       <div>
-        <p>Fetched {currencyState.value.length} currencies.</p>
+        <p>Fetched {currencies.length} currencies.</p>
         <div style={{ display: 'flex', gap: 4 }}>
           <div>
             <CurrencySelector
-              currencies={currencyState.value}
+              currencies={currencies}
               value={selectorFrom}
               onChange={onChangeFrom}
             />
-            <CurrencyInput value={convertValue} onChange={onChangeConvertValue} />
+            <CurrencyInput
+              prefix={selectorFrom}
+              placeholder="Enter the amount"
+              value={convertValue}
+              onChange={onChangeConvertValue}
+              loading={currencyState.status === 'loading'}
+            />
           </div>
           <div>
-            <CurrencySelector
-              currencies={currencyState.value}
-              value={selectorTo}
-              onChange={onChangeTo}
-            />
+            <CurrencySelector currencies={currencies} value={selectorTo} onChange={onChangeTo} />
             <p>Value valid: {isConvertValueValid.toString()}</p>
-            <CurrencyInput value={convertState.value?.toString()} readOnly={true} />
+            <CurrencyInput
+              prefix={selectorTo}
+              placeholder="Conversion result"
+              value={convertState.value?.toString()}
+              readOnly={true}
+            />
           </div>
         </div>
       </div>

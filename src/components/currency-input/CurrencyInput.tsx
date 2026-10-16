@@ -1,23 +1,33 @@
+import { NumberInput } from '@mantine/core';
+
 type CurrencyInputProps = {
   value?: string;
   onChange?(value: string): void;
   readOnly?: boolean;
+  prefix?: string;
+  placeholder?: string;
+  loading?: boolean;
 };
 
-const CURRENCY_INPUT_REGEX = /^(?:|0|[1-9]\d*)(?:\.\d{0,2})?$/;
-
-export function CurrencyInput({ value, onChange, readOnly }: CurrencyInputProps) {
-  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-
-    if (onChange && CURRENCY_INPUT_REGEX.test(val)) {
-      onChange(val);
-    }
-  };
-
+export function CurrencyInput({
+  value,
+  onChange,
+  placeholder,
+  prefix,
+  readOnly,
+  loading,
+}: CurrencyInputProps) {
   return (
-    <div>
-      <input disabled={readOnly} type="text" onChange={onChangeHandler} value={value ?? ''} />
-    </div>
+    <NumberInput
+      placeholder={placeholder}
+      prefix={`${prefix} `}
+      value={value}
+      onChange={(v) => onChange?.(v.toString())}
+      allowNegative={false}
+      decimalScale={2}
+      readOnly={readOnly}
+      loading={loading}
+      style={{}}
+    />
   );
 }
