@@ -7,12 +7,14 @@ import { useCurrencySelectors } from './hooks/useCurrencySelectors';
 import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
 import { useConvertInput } from './hooks/useCurrencyInputs';
 import type { GenericAsyncState } from '../../types/state';
+import axios from '../../lib/axios';
 
 type CurrencyState = GenericAsyncState<Currency[]>;
 type ConvertState = GenericAsyncState<number>;
 
 const DEFAULT_FROM = 'USD';
 const DEFAULT_TO = 'PLN';
+const CONVERT_INPUT_DEBOUNCE_MS = 500;
 
 export function CurrencyConvertor() {
   const [currencyState, setCurrencyState] = useState<CurrencyState>({
@@ -37,7 +39,6 @@ export function CurrencyConvertor() {
       try {
         const currencies = await currencyApi.fetchCurrencies();
 
-        // TODO: Add auto select from/to on fetch.
         setCurrencyState({
           status: 'success',
           value: currencies,
@@ -59,9 +60,13 @@ export function CurrencyConvertor() {
   }, [onChangeFrom, onChangeTo]);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    const { signal } = abortController;
+
     const convertValues = async () => {
       if (convertValue === '') {
         setConvertState({ status: 'idle', value: null, error: null });
+        return;
       }
       if (!isConvertValueValid || !selectorFrom || !selectorTo) return;
 
@@ -72,6 +77,7 @@ export function CurrencyConvertor() {
           selectorFrom,
           selectorTo,
           getConvertValueNumber(),
+          signal,
         );
 
         setConvertState({
@@ -79,7 +85,9 @@ export function CurrencyConvertor() {
           value,
           error: null,
         });
-      } catch {
+      } catch (e) {
+        if (axios.isCancel(e)) return;
+
         setConvertState({
           status: 'error',
           value: null,
@@ -88,8 +96,12 @@ export function CurrencyConvertor() {
       }
     };
 
-    convertValues();
-    if (!isConvertValueValid || !selectorFrom || !selectorTo) return;
+    const convertTimer = setTimeout(() => convertValues(), CONVERT_INPUT_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(convertTimer);
+      abortController.abort();
+    };
   }, [isConvertValueValid, getConvertValueNumber, selectorFrom, selectorTo, convertValue]);
 
   // TODO: Add proper visual handling for all statues.

@@ -6,9 +6,10 @@ async function fetchCurrencies() {
   return currenciesResponse.data.response;
 }
 
-async function convertCurrencies(from: string, to: string, amount: number) {
+async function convertCurrencies(from: string, to: string, amount: number, signal?: AbortSignal) {
   const convertResponse = await axios.get<ConvertResponse>(
     `/convert?from=${from}&to=${to}&amount=${amount}`,
+    { signal },
   );
   return convertResponse.data.response;
 }
