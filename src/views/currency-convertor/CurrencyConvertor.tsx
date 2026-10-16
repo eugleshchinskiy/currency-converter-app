@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { AxiosError } from 'axios';
+import { Alert, Center, Grid, Loader, Stack, Text } from '@mantine/core';
 
 import { currencyApi } from '../../api/currency';
 import type { Currency } from '../../types/currency';
@@ -8,7 +10,6 @@ import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
 import { useConvertInput } from './hooks/useCurrencyInputs';
 import type { GenericAsyncState } from '../../types/state';
 import axios from '../../lib/axios';
-import { Loader } from '@mantine/core';
 
 type CurrencyState = GenericAsyncState<Currency[]>;
 type ConvertState = GenericAsyncState<number>;
@@ -47,12 +48,13 @@ export function CurrencyConvertor() {
         });
         onChangeFrom(DEFAULT_FROM || (currencies.length > 0 ? currencies[0].code : ''));
         onChangeTo(DEFAULT_TO || (currencies.length > 0 ? currencies[0].code : ''));
-      } catch {
+      } catch (e) {
+        const code = e instanceof AxiosError ? e.response?.status : null;
+
         setCurrencyState({
           status: 'error',
           value: null,
-          // TODO: consider adding per error handling or add notes about it.
-          error: 'Error while fetching currencies.',
+          error: `Error while fetching currencies. Try again later.${code ? ` Error code: ${code}.` : ''}`,
         });
       }
     };
@@ -89,10 +91,12 @@ export function CurrencyConvertor() {
       } catch (e) {
         if (axios.isCancel(e)) return;
 
+        const code = e instanceof AxiosError ? e.response?.status : null;
+
         setConvertState({
           status: 'error',
           value: null,
-          error: 'Error while converting currencies.',
+          error: `Error while converting currencies. Try again later.${code ? ` Error code: ${code}.` : ''}`,
         });
       }
     };
@@ -105,55 +109,68 @@ export function CurrencyConvertor() {
     };
   }, [isConvertValueValid, getConvertValueNumber, selectorFrom, selectorTo, convertValue]);
 
-  // TODO: Add proper visual handling for all statues.
-
-  if (currencyState.status === 'error') {
-    return <p>Error: {currencyState.error}</p>;
-  }
-
   if (currencyState.status === 'loading') {
-    return <Loader />;
-  }
-
-  if (currencyState.status === 'success') {
-    const currencies = currencyState.value || [];
-
     return (
-      <div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          <div>
-            <CurrencySelector
-              currencies={currencies}
-              value={selectorFrom}
-              onChange={onChangeFrom}
-              label="Convert from:"
-            />
-            <CurrencyInput
-              prefix={selectorFrom}
-              placeholder="Enter the amount"
-              value={convertValue}
-              onChange={onChangeConvertValue}
-            />
-          </div>
-          <div>
-            <CurrencySelector
-              currencies={currencies}
-              value={selectorTo}
-              onChange={onChangeTo}
-              label="Convert to:"
-            />
-            <CurrencyInput
-              prefix={selectorTo}
-              placeholder="Conversion result"
-              value={convertState.value?.toString()}
-              readOnly={true}
-              loading={convertState.status === 'loading'}
-            />
-          </div>
-        </div>
-      </div>
+      <Center>
+        <Loader mt="xl" type="dots" size="xl" />
+      </Center>
     );
   }
 
-  return null;
+  const currencies = currencyState.value || [];
+  const currencyError = currencyState.error;
+  const convertError = convertState.error;
+  const hasErrors = currencyError || convertError;
+
+  return (
+    <Grid>
+      <Grid.Col span={6}>
+        <Stack gap="md">
+          <CurrencySelector
+            currencies={currencies}
+            value={selectorFrom}
+            onChange={onChangeFrom}
+            label="Convert from"
+            disabled={!!currencyError}
+          />
+          <CurrencyInput
+            prefix={selectorFrom}
+            placeholder="Enter the amount"
+            value={convertValue}
+            onChange={onChangeConvertValue}
+            disabled={!!currencyError}
+            label="Please enter value below"
+          />
+        </Stack>
+      </Grid.Col>
+
+      <Grid.Col span={6}>
+        <Stack gap="md">
+          <CurrencySelector
+            currencies={currencies}
+            value={selectorTo}
+            onChange={onChangeTo}
+            label="Convert to"
+            disabled={!!currencyError}
+          />
+          <CurrencyInput
+            prefix={selectorTo}
+            placeholder="Conversion result"
+            value={convertState.value?.toString()}
+            readOnly={true}
+            loading={convertState.status === 'loading'}
+            label="Conversion result"
+          />
+        </Stack>
+      </Grid.Col>
+      {hasErrors && (
+        <Grid.Col span={12}>
+          <Alert variant="light" color="red" radius="sm">
+            <Text>{currencyError}</Text>
+            <Text>{convertError}</Text>
+          </Alert>
+        </Grid.Col>
+      )}
+    </Grid>
+  );
 }

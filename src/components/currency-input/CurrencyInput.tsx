@@ -7,6 +7,8 @@ type CurrencyInputProps = {
   prefix?: string;
   placeholder?: string;
   loading?: boolean;
+  disabled?: boolean;
+  label?: string;
 };
 
 export function CurrencyInput({
@@ -16,6 +18,8 @@ export function CurrencyInput({
   prefix,
   readOnly,
   loading,
+  disabled,
+  label,
 }: CurrencyInputProps) {
   return (
     <NumberInput
@@ -27,6 +31,8 @@ export function CurrencyInput({
       decimalScale={2}
       readOnly={readOnly}
       loading={loading}
+      disabled={disabled}
+      label={label}
     />
   );
 }
