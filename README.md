@@ -11,3 +11,13 @@ To use locally:
 ### My considerations
 
 1. Storing an api key on FE side is not safe, it should be stored on BE side (for example Next.js). Used it here with a proxy for simplicity sake.
+
+### TODO
+
+[] Add some UI lib
+[] Add error handling
+[] Add loading handling
+[] Add styling
+[] Move out hooks
+[] Add basic accessibility
+[] Add Docker + Docker compose
