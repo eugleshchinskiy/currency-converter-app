@@ -6,26 +6,33 @@ import { CurrencySelector } from '../../components/currency-selector/CurrencySel
 import { useCurrencySelectors } from './hooks/useCurrencySelectors';
 import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
 import { useConvertInput } from './hooks/useCurrencyInputs';
+import type { GenericAsyncState } from '../../types/state';
 
-type CurrencyState =
-  | { status: 'idle'; currencies: null; error: null }
-  | { status: 'loading'; currencies: null; error: null }
-  | { status: 'success'; currencies: Currency[]; error: null }
-  | { status: 'error'; currencies: null; error: string };
+type CurrencyState = GenericAsyncState<Currency[]>;
+type ConvertState = GenericAsyncState<number>;
+
+const DEFAULT_FROM = 'USD';
+const DEFAULT_TO = 'PLN';
 
 export function CurrencyConvertor() {
   const [currencyState, setCurrencyState] = useState<CurrencyState>({
     status: 'idle',
-    currencies: null,
+    value: null,
+    error: null,
+  });
+  const [convertState, setConvertState] = useState<ConvertState>({
+    status: 'idle',
+    value: null,
     error: null,
   });
   const { selectorFrom, selectorTo, onChangeFrom, onChangeTo } = useCurrencySelectors();
-  const { convertValue, onChangeConvertValue, isConvertValueValid } = useConvertInput();
+  const { convertValue, onChangeConvertValue, isConvertValueValid, getConvertValueNumber } =
+    useConvertInput();
 
   // TODO: move to hooks.
   useEffect(() => {
     const fetchCurrencies = async () => {
-      setCurrencyState({ status: 'loading', currencies: null, error: null });
+      setCurrencyState({ status: 'loading', value: null, error: null });
 
       try {
         const currencies = await currencyApi.fetchCurrencies();
@@ -33,13 +40,15 @@ export function CurrencyConvertor() {
         // TODO: Add auto select from/to on fetch.
         setCurrencyState({
           status: 'success',
-          currencies,
+          value: currencies,
           error: null,
         });
+        onChangeFrom(DEFAULT_FROM || (currencies.length > 0 ? currencies[0].code : ''));
+        onChangeTo(DEFAULT_TO || (currencies.length > 0 ? currencies[0].code : ''));
       } catch {
         setCurrencyState({
           status: 'error',
-          currencies: null,
+          value: null,
           // TODO: consider adding per error handling or add notes about it.
           error: 'Error while fetching currencies.',
         });
@@ -47,7 +56,41 @@ export function CurrencyConvertor() {
     };
 
     fetchCurrencies();
-  }, []);
+  }, [onChangeFrom, onChangeTo]);
+
+  useEffect(() => {
+    const convertValues = async () => {
+      if (convertValue === '') {
+        setConvertState({ status: 'idle', value: null, error: null });
+      }
+      if (!isConvertValueValid || !selectorFrom || !selectorTo) return;
+
+      setConvertState({ status: 'loading', value: null, error: null });
+
+      try {
+        const { value } = await currencyApi.convertCurrencies(
+          selectorFrom,
+          selectorTo,
+          getConvertValueNumber(),
+        );
+
+        setConvertState({
+          status: 'success',
+          value,
+          error: null,
+        });
+      } catch {
+        setConvertState({
+          status: 'error',
+          value: null,
+          error: 'Error while converting currencies.',
+        });
+      }
+    };
+
+    convertValues();
+    if (!isConvertValueValid || !selectorFrom || !selectorTo) return;
+  }, [isConvertValueValid, getConvertValueNumber, selectorFrom, selectorTo, convertValue]);
 
   // TODO: Add proper visual handling for all statues.
   if (currencyState.status === 'loading') {
@@ -61,11 +104,11 @@ export function CurrencyConvertor() {
   if (currencyState.status === 'success') {
     return (
       <div>
-        <p>Fetched {currencyState.currencies.length} currencies.</p>
+        <p>Fetched {currencyState.value.length} currencies.</p>
         <div style={{ display: 'flex', gap: 4 }}>
           <div>
             <CurrencySelector
-              currencies={currencyState.currencies}
+              currencies={currencyState.value}
               value={selectorFrom}
               onChange={onChangeFrom}
             />
@@ -73,12 +116,12 @@ export function CurrencyConvertor() {
           </div>
           <div>
             <CurrencySelector
-              currencies={currencyState.currencies}
+              currencies={currencyState.value}
               value={selectorTo}
               onChange={onChangeTo}
             />
-            <p>Value valid: {isConvertValueValid().toString()}</p>
-            <CurrencyInput value={convertValue} onChange={onChangeConvertValue} readOnly={true} />
+            <p>Value valid: {isConvertValueValid.toString()}</p>
+            <CurrencyInput value={convertState.value?.toString()} readOnly={true} />
           </div>
         </div>
       </div>

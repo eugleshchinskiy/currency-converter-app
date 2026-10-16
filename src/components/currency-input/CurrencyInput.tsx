@@ -1,6 +1,6 @@
 type CurrencyInputProps = {
-  value: string;
-  onChange(value: string): void;
+  value?: string;
+  onChange?(value: string): void;
   readOnly?: boolean;
 };
 
@@ -10,14 +10,14 @@ export function CurrencyInput({ value, onChange, readOnly }: CurrencyInputProps)
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
 
-    if (CURRENCY_INPUT_REGEX.test(val)) {
+    if (onChange && CURRENCY_INPUT_REGEX.test(val)) {
       onChange(val);
     }
   };
 
   return (
     <div>
-      <input disabled={readOnly} type="text" onChange={onChangeHandler} value={value.toString()} />
+      <input disabled={readOnly} type="text" onChange={onChangeHandler} value={value ?? ''} />
     </div>
   );
 }

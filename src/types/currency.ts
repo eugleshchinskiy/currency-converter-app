@@ -14,3 +14,9 @@ export type Currency = {
 export type CurrencyResponse = {
   response: Currency[];
 };
+
+export type ConvertResponse = {
+  response: {
+    value: number;
+  };
+};

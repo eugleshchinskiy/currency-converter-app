@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export function useCurrencySelectors() {
   const [selectorFrom, setSelectorFrom] = useState('');
   const [selectorTo, setSelectorTo] = useState('');
 
-  function onChangeFrom(val: string) {
+  const onChangeFrom = useCallback(function (val: string) {
     setSelectorFrom(val);
-  }
+  }, []);
 
-  function onChangeTo(val: string) {
+  const onChangeTo = useCallback(function (val: string) {
     setSelectorTo(val);
-  }
+  }, []);
 
   return {
     selectorFrom,
