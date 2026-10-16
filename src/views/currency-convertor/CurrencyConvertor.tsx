@@ -8,6 +8,7 @@ import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
 import { useConvertInput } from './hooks/useCurrencyInputs';
 import type { GenericAsyncState } from '../../types/state';
 import axios from '../../lib/axios';
+import { Loader } from '@mantine/core';
 
 type CurrencyState = GenericAsyncState<Currency[]>;
 type ConvertState = GenericAsyncState<number>;
@@ -110,35 +111,43 @@ export function CurrencyConvertor() {
     return <p>Error: {currencyState.error}</p>;
   }
 
-  if (currencyState.status === 'success' || currencyState.status === 'loading') {
+  if (currencyState.status === 'loading') {
+    return <Loader />;
+  }
+
+  if (currencyState.status === 'success') {
     const currencies = currencyState.value || [];
 
     return (
       <div>
-        <p>Fetched {currencies.length} currencies.</p>
         <div style={{ display: 'flex', gap: 4 }}>
           <div>
             <CurrencySelector
               currencies={currencies}
               value={selectorFrom}
               onChange={onChangeFrom}
+              label="Convert from:"
             />
             <CurrencyInput
               prefix={selectorFrom}
               placeholder="Enter the amount"
               value={convertValue}
               onChange={onChangeConvertValue}
-              loading={currencyState.status === 'loading'}
             />
           </div>
           <div>
-            <CurrencySelector currencies={currencies} value={selectorTo} onChange={onChangeTo} />
-            <p>Value valid: {isConvertValueValid.toString()}</p>
+            <CurrencySelector
+              currencies={currencies}
+              value={selectorTo}
+              onChange={onChangeTo}
+              label="Convert to:"
+            />
             <CurrencyInput
               prefix={selectorTo}
               placeholder="Conversion result"
               value={convertState.value?.toString()}
               readOnly={true}
+              loading={convertState.status === 'loading'}
             />
           </div>
         </div>

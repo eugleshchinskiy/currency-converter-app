@@ -1,23 +1,34 @@
+import { Select } from '@mantine/core';
 import type { Currency } from '../../types/currency';
 
 type CurrencySelectorProps = {
   currencies: Currency[];
   value: string;
   onChange(value: string): void;
+  label?: string;
+  loading?: boolean;
 };
 
-export function CurrencySelector({ currencies, value, onChange }: CurrencySelectorProps) {
-  const onChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onChange(e.target.value);
+export function CurrencySelector({
+  currencies,
+  value,
+  onChange,
+  label,
+  loading,
+}: CurrencySelectorProps) {
+  const onChangeHandler = (v: string | null) => {
+    if (!v) return;
+    onChange(v);
   };
 
   return (
-    <select value={value} onChange={onChangeHandler}>
-      {currencies.map((c) => (
-        <option value={c.short_code} key={c.code}>
-          {c.short_code}
-        </option>
-      ))}
-    </select>
+    <Select
+      value={value}
+      label={label}
+      data={currencies.map((c) => c.short_code)}
+      onChange={onChangeHandler}
+      loading={loading}
+      searchable
+    />
   );
 }

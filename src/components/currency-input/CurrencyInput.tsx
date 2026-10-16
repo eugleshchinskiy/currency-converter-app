@@ -27,7 +27,6 @@ export function CurrencyInput({
       decimalScale={2}
       readOnly={readOnly}
       loading={loading}
-      style={{}}
     />
   );
 }
