@@ -30,13 +30,24 @@ export function useCurrencyState({ onChangeFrom, onChangeTo }: UseConvertStatePa
       try {
         const currencies = await currencyApi.fetchCurrencies();
 
-        setCurrencyState({
-          status: 'success',
-          value: currencies,
-          error: null,
-        });
-        onChangeFrom(DEFAULT_FROM || (currencies.length > 0 ? currencies[0].short_code : ''));
-        onChangeTo(DEFAULT_TO || (currencies.length > 0 ? currencies[0].short_code : ''));
+        if (currencies.length > 0) {
+          setCurrencyState({
+            status: 'success',
+            value: currencies,
+            error: null,
+          });
+          const hasDefaultFrom = currencies.some(({ short_code }) => short_code === DEFAULT_FROM);
+          const hasDefaultTo = currencies.some(({ short_code }) => short_code === DEFAULT_FROM);
+
+          onChangeFrom(hasDefaultFrom ? DEFAULT_FROM : currencies[0].short_code);
+          onChangeTo(hasDefaultTo ? DEFAULT_TO : currencies[0].short_code);
+        } else {
+          setCurrencyState({
+            status: 'error',
+            value: null,
+            error: 'Error: no currencies were found. Try again later.',
+          });
+        }
       } catch (e) {
         const code = e instanceof AxiosError ? e.response?.status : null;
 

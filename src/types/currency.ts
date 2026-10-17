@@ -1,5 +1,7 @@
 export type Currency = {
   short_code: string;
+  symbol: string;
+  symbol_first: boolean;
 };
 
 export type CurrencyResponse = {

@@ -4,7 +4,8 @@ type CurrencyInputProps = {
   value?: string;
   onChange?(value: string): void;
   readOnly?: boolean;
-  prefix?: string;
+  symbol?: string;
+  isSymbolPrefix?: boolean;
   placeholder?: string;
   loading?: boolean;
   disabled?: boolean;
@@ -15,7 +16,8 @@ export function CurrencyInput({
   value,
   onChange,
   placeholder,
-  prefix,
+  symbol,
+  isSymbolPrefix,
   readOnly,
   loading,
   disabled,
@@ -24,7 +26,8 @@ export function CurrencyInput({
   return (
     <NumberInput
       placeholder={placeholder}
-      prefix={`${prefix} `}
+      prefix={isSymbolPrefix ? `${symbol} ` : undefined}
+      suffix={isSymbolPrefix ? undefined : ` ${symbol}`}
       value={value}
       onChange={(v) => onChange?.(v.toString())}
       allowNegative={false}

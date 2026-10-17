@@ -6,6 +6,7 @@ import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
 import { useConvertInput } from './hooks/useCurrencyInputs';
 import { useConvertState } from './hooks/useConvertState';
 import { useCurrencyState } from './hooks/useCurrencyState';
+import { useMemo } from 'react';
 
 export function CurrencyConvertor() {
   const { selectorFrom, selectorTo, onChangeFrom, onChangeTo } = useCurrencySelectors();
@@ -19,6 +20,14 @@ export function CurrencyConvertor() {
     selectorTo,
   });
   const { currencyState } = useCurrencyState({ onChangeFrom, onChangeTo });
+  const currencyFrom = useMemo(
+    () => currencyState.value?.find(({ short_code }) => short_code === selectorFrom),
+    [currencyState.value, selectorFrom],
+  );
+  const currencyTo = useMemo(
+    () => currencyState.value?.find(({ short_code }) => short_code === selectorTo),
+    [currencyState.value, selectorTo],
+  );
 
   if (currencyState.status === 'loading') {
     return (
@@ -45,7 +54,8 @@ export function CurrencyConvertor() {
             disabled={!!currencyError}
           />
           <CurrencyInput
-            prefix={selectorFrom}
+            symbol={currencyFrom?.symbol || selectorFrom}
+            isSymbolPrefix={currencyFrom?.symbol_first}
             placeholder="Enter the amount"
             value={convertValue}
             onChange={onChangeConvertValue}
@@ -65,7 +75,8 @@ export function CurrencyConvertor() {
             disabled={!!currencyError}
           />
           <CurrencyInput
-            prefix={selectorTo}
+            symbol={currencyTo?.symbol || selectorTo}
+            isSymbolPrefix={currencyTo?.symbol_first}
             placeholder="Conversion result"
             value={convertState.value?.toString()}
             readOnly={true}
