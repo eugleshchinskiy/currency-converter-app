@@ -9,7 +9,7 @@ import type { useCurrencySelectors } from './useCurrencySelectors';
 
 type ConvertState = GenericAsyncState<number>;
 
-const CONVERT_INPUT_DEBOUNCE_MS = 500;
+export const CONVERT_INPUT_DEBOUNCE_MS = 500;
 
 export type UseConvertStateParams = Pick<
   ReturnType<typeof useConvertInput>,

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { AxiosError } from 'axios';
 
 import { currencyApi } from '../../../api/currency';
-import { act, renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useCurrencyState } from './useCurrencyState';
 
 vi.mock('../../../api/currency', () => ({
@@ -57,7 +57,7 @@ describe('useCurrencyState', () => {
       }),
     );
 
-    await act(() => result.current.currencyState.status === 'success');
+    await waitFor(() => result.current.currencyState.status === 'success');
 
     expect(currencyApi.fetchCurrencies).toHaveBeenCalledOnce();
     expect(result.current.currencyState.value).toStrictEqual(currenciesResponse);
@@ -73,7 +73,7 @@ describe('useCurrencyState', () => {
       }),
     );
 
-    await act(() => result.current.currencyState.status === 'success');
+    await waitFor(() => result.current.currencyState.status === 'success');
 
     expect(onChangeFromMock).toHaveBeenCalledOnce();
     expect(onChangeFromMock).toHaveBeenCalledWith('USD');
@@ -91,7 +91,7 @@ describe('useCurrencyState', () => {
       }),
     );
 
-    await act(() => result.current.currencyState.status === 'error');
+    await waitFor(() => result.current.currencyState.status === 'error');
 
     expect(result.current.currencyState.error).toBe(
       'Error while fetching currencies. Try again later.',
