@@ -4,7 +4,7 @@ import { AxiosError } from 'axios';
 import { currencyApi } from '../../../api/currency';
 import axios from '../../../lib/axios';
 import type { GenericAsyncState } from '../../../types/state';
-import type { useConvertInput } from './useCurrencyInputs';
+import type { useConvertInput } from './useConvertInput';
 import type { useCurrencySelectors } from './useCurrencySelectors';
 
 type ConvertState = GenericAsyncState<number>;

@@ -3,7 +3,7 @@ import { Alert, Center, Grid, Loader, Stack, Text } from '@mantine/core';
 import { CurrencySelector } from '../../components/currency-selector/CurrencySelector';
 import { useCurrencySelectors } from './hooks/useCurrencySelectors';
 import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
-import { useConvertInput } from './hooks/useCurrencyInputs';
+import { useConvertInput } from './hooks/useConvertInput';
 import { useConvertState } from './hooks/useConvertState';
 import { useCurrencyState } from './hooks/useCurrencyState';
 import { useMemo } from 'react';
