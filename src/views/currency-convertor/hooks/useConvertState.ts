@@ -41,6 +41,15 @@ export function useConvertState({
       }
       if (!isConvertValueValid || !selectorFrom || !selectorTo) return;
 
+      if (selectorFrom === selectorTo) {
+        setConvertState({
+          status: 'success',
+          value: getConvertValueNumber(),
+          error: null,
+        });
+        return;
+      }
+
       setConvertState({ status: 'loading', value: null, error: null });
 
       try {
