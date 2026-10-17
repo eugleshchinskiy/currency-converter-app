@@ -11,7 +11,7 @@ type ConvertState = GenericAsyncState<number>;
 
 const CONVERT_INPUT_DEBOUNCE_MS = 500;
 
-type UseConvertStateParams = Pick<
+export type UseConvertStateParams = Pick<
   ReturnType<typeof useConvertInput>,
   'convertValue' | 'isConvertValueValid' | 'convertValueNumber'
 > &
