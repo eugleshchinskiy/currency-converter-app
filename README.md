@@ -2,15 +2,20 @@
 
 Bootstrapped with `npm create vite@latest my-vite-app --template react-ts`.
 
-To use locally:
+To use locally clone the repository and then:
+
+**Option 1:**
 
 1. Copy `./.env-sample` to `./.env` and add your api key to `VITE_API_KEY`
 2. Run `npm install` to install packages
 3. Run `npm run dev` to start local version for the app.
 
-Or add the env file and simply run (if Docker is installed):
+**Option 2:**
 
-`docker compose up`
+1. Copy `./.env-sample` to `./.env` and add your api key to `VITE_API_KEY`
+2. Run `docker compose up` in terminal
+
+Open the app at http://localhost:5173/.
 
 ### My considerations and intentional choices
 
