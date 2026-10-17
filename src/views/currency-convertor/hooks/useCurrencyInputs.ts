@@ -1,31 +1,15 @@
-import { useCallback, useMemo, useState } from 'react';
-
-const CURRENCY_REGEX = /^(?:[1-9]\d*(?:\.\d+)?|0\.\d*[1-9]\d*)$/;
+import { useState } from 'react';
 
 export function useConvertInput() {
-  const [convertValue, setConvertValue] = useState('');
+  const [convertValue, setConvertValue] = useState<string | number>('');
 
-  const onChangeConvertValue = useCallback(function (val: string) {
-    setConvertValue(val);
-  }, []);
-
-  const isConvertValueValid = useMemo(
-    function () {
-      return CURRENCY_REGEX.test(convertValue);
-    },
-    [convertValue],
-  );
-
-  const getConvertValueNumber = useCallback(() => {
-    if (!isConvertValueValid) return 0;
-
-    return Number.parseFloat(convertValue);
-  }, [isConvertValueValid, convertValue]);
+  const convertValueNumber =
+    typeof convertValue === 'number' && convertValue > 0 ? convertValue : null;
 
   return {
     convertValue,
-    onChangeConvertValue,
-    isConvertValueValid,
-    getConvertValueNumber,
+    onChangeConvertValue: setConvertValue,
+    convertValueNumber,
+    isConvertValueValid: convertValueNumber !== null,
   };
 }

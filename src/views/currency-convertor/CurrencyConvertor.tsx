@@ -10,12 +10,12 @@ import { useMemo } from 'react';
 
 export function CurrencyConvertor() {
   const { selectorFrom, selectorTo, onChangeFrom, onChangeTo } = useCurrencySelectors();
-  const { convertValue, onChangeConvertValue, isConvertValueValid, getConvertValueNumber } =
+  const { convertValue, convertValueNumber, isConvertValueValid, onChangeConvertValue } =
     useConvertInput();
   const { convertState } = useConvertState({
     convertValue,
     isConvertValueValid,
-    getConvertValueNumber,
+    convertValueNumber,
     selectorFrom,
     selectorTo,
   });

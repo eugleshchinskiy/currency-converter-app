@@ -1,8 +1,8 @@
 import { NumberInput } from '@mantine/core';
 
 type CurrencyInputProps = {
-  value?: string;
-  onChange?(value: string): void;
+  value?: string | number;
+  onChange?(value: string | number): void;
   readOnly?: boolean;
   symbol?: string;
   isSymbolPrefix?: boolean;
@@ -29,7 +29,7 @@ export function CurrencyInput({
       prefix={isSymbolPrefix ? `${symbol} ` : undefined}
       suffix={isSymbolPrefix ? undefined : ` ${symbol}`}
       value={value}
-      onChange={(v) => onChange?.(v.toString())}
+      onChange={onChange}
       allowNegative={false}
       decimalScale={2}
       readOnly={readOnly}

@@ -13,14 +13,14 @@ const CONVERT_INPUT_DEBOUNCE_MS = 500;
 
 type UseConvertStateParams = Pick<
   ReturnType<typeof useConvertInput>,
-  'convertValue' | 'isConvertValueValid' | 'getConvertValueNumber'
+  'convertValue' | 'isConvertValueValid' | 'convertValueNumber'
 > &
   Pick<ReturnType<typeof useCurrencySelectors>, 'selectorFrom' | 'selectorTo'>;
 
 export function useConvertState({
   convertValue,
   isConvertValueValid,
-  getConvertValueNumber,
+  convertValueNumber,
   selectorFrom,
   selectorTo,
 }: UseConvertStateParams) {
@@ -44,7 +44,7 @@ export function useConvertState({
       if (selectorFrom === selectorTo) {
         setConvertState({
           status: 'success',
-          value: getConvertValueNumber(),
+          value: convertValueNumber as number,
           error: null,
         });
         return;
@@ -56,7 +56,7 @@ export function useConvertState({
         const { value } = await currencyApi.convertCurrencies(
           selectorFrom,
           selectorTo,
-          getConvertValueNumber(),
+          convertValueNumber as number,
           signal,
         );
 
@@ -84,7 +84,7 @@ export function useConvertState({
       clearTimeout(convertTimer);
       abortController.abort();
     };
-  }, [isConvertValueValid, getConvertValueNumber, selectorFrom, selectorTo, convertValue]);
+  }, [isConvertValueValid, convertValueNumber, selectorFrom, selectorTo, convertValue]);
 
   return {
     convertState,
