@@ -44,7 +44,7 @@ export function CurrencyConvertor() {
 
   return (
     <Grid>
-      <Grid.Col span={6}>
+      <Grid.Col span={{ base: 12, sm: 6 }}>
         <Stack gap="md">
           <CurrencySelector
             currencies={currencies}
@@ -65,7 +65,7 @@ export function CurrencyConvertor() {
         </Stack>
       </Grid.Col>
 
-      <Grid.Col span={6}>
+      <Grid.Col span={{ base: 12, sm: 6 }}>
         <Stack gap="md">
           <CurrencySelector
             currencies={currencies}
