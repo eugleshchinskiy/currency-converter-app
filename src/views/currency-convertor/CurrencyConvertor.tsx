@@ -32,7 +32,7 @@ export function CurrencyConvertor() {
   if (currencyState.status === 'loading') {
     return (
       <Center>
-        <Loader mt="xl" type="dots" size="xl" />
+        <Loader role="status" mt="xl" type="dots" size="xl" />
       </Center>
     );
   }
