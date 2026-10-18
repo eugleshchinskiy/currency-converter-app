@@ -26,7 +26,7 @@ const baseProps: UseConvertStateParams = {
 describe('useConvertState', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     vi.mocked(currencyApi.convertCurrencies).mockResolvedValue({ value: 40 });
   });
 

@@ -29,7 +29,7 @@ const currenciesResponse = [
 
 describe('useCurrencyState', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   test('correctly starts in idle state and transitions to loading', () => {

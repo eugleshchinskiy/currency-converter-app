@@ -24,7 +24,7 @@ const currenciesResponse = [
 
 describe('currencyApi', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   test('fetchCurrencies is called with correct params and returns correct results', async () => {
