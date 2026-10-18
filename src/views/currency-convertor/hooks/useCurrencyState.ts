@@ -13,8 +13,8 @@ type UseConvertStateParams = Pick<
   'onChangeFrom' | 'onChangeTo'
 >;
 
-const DEFAULT_FROM = 'USD';
-const DEFAULT_TO = 'PLN';
+export const DEFAULT_FROM = 'USD';
+export const DEFAULT_TO = 'PLN';
 
 export function useCurrencyState({ onChangeFrom, onChangeTo }: UseConvertStateParams) {
   const [currencyState, setCurrencyState] = useState<CurrencyState>({
@@ -37,7 +37,7 @@ export function useCurrencyState({ onChangeFrom, onChangeTo }: UseConvertStatePa
             error: null,
           });
           const hasDefaultFrom = currencies.some(({ short_code }) => short_code === DEFAULT_FROM);
-          const hasDefaultTo = currencies.some(({ short_code }) => short_code === DEFAULT_FROM);
+          const hasDefaultTo = currencies.some(({ short_code }) => short_code === DEFAULT_TO);
 
           onChangeFrom(hasDefaultFrom ? DEFAULT_FROM : currencies[0].short_code);
           onChangeTo(hasDefaultTo ? DEFAULT_TO : currencies[0].short_code);

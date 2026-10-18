@@ -3,7 +3,7 @@ import { AxiosError } from 'axios';
 
 import { currencyApi } from '../../../api/currency';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useCurrencyState } from './useCurrencyState';
+import { DEFAULT_FROM, DEFAULT_TO, useCurrencyState } from './useCurrencyState';
 
 vi.mock('../../../api/currency', () => ({
   currencyApi: {
@@ -29,10 +29,12 @@ const currenciesResponse = [
 
 describe('useCurrencyState', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   test('correctly starts in idle state and transitions to loading', () => {
+    vi.mocked(currencyApi.fetchCurrencies).mockReturnValue(new Promise(() => {}));
+
     const statuses: string[] = [];
 
     renderHook(() => {
@@ -57,7 +59,7 @@ describe('useCurrencyState', () => {
       }),
     );
 
-    await waitFor(() => result.current.currencyState.status === 'success');
+    await waitFor(() => expect(result.current.currencyState.status).toBe('success'));
 
     expect(currencyApi.fetchCurrencies).toHaveBeenCalledOnce();
     expect(result.current.currencyState.value).toStrictEqual(currenciesResponse);
@@ -73,12 +75,55 @@ describe('useCurrencyState', () => {
       }),
     );
 
-    await waitFor(() => result.current.currencyState.status === 'success');
+    await waitFor(() => expect(result.current.currencyState.status).toBe('success'));
 
     expect(onChangeFromMock).toHaveBeenCalledOnce();
-    expect(onChangeFromMock).toHaveBeenCalledWith('USD');
+    expect(onChangeFromMock).toHaveBeenCalledWith(DEFAULT_FROM);
     expect(onChangeToMock).toHaveBeenCalledOnce();
-    expect(onChangeToMock).toHaveBeenCalledWith('PLN');
+    expect(onChangeToMock).toHaveBeenCalledWith(DEFAULT_TO);
+  });
+
+  test('correctly handle empty currencies response', async () => {
+    vi.mocked(currencyApi.fetchCurrencies).mockResolvedValue([]);
+
+    const { result } = renderHook(() =>
+      useCurrencyState({
+        onChangeFrom: onChangeFromMock,
+        onChangeTo: onChangeToMock,
+      }),
+    );
+
+    console.log(result);
+
+    await waitFor(() => expect(result.current.currencyState.status).toBe('error'));
+
+    expect(result.current.currencyState.error).toBe(
+      'Error: no currencies were found. Try again later.',
+    );
+  });
+
+  test('correctly handle missing default values in currencies response', async () => {
+    vi.mocked(currencyApi.fetchCurrencies).mockResolvedValue([
+      {
+        short_code: 'EUR',
+        symbol: '€',
+        symbol_first: false,
+      },
+    ]);
+
+    const { result } = renderHook(() =>
+      useCurrencyState({
+        onChangeFrom: onChangeFromMock,
+        onChangeTo: onChangeToMock,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.currencyState.status).toBe('success'));
+
+    expect(onChangeFromMock).toHaveBeenCalledOnce();
+    expect(onChangeFromMock).toHaveBeenCalledWith('EUR');
+    expect(onChangeToMock).toHaveBeenCalledOnce();
+    expect(onChangeToMock).toHaveBeenCalledWith('EUR');
   });
 
   test('correctly handles network errors', async () => {
@@ -91,7 +136,7 @@ describe('useCurrencyState', () => {
       }),
     );
 
-    await waitFor(() => result.current.currencyState.status === 'error');
+    await waitFor(() => expect(result.current.currencyState.status).toBe('error'));
 
     expect(result.current.currencyState.error).toBe(
       'Error while fetching currencies. Try again later.',
