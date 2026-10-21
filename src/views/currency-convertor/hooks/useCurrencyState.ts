@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
+import { AxiosError, isCancel } from 'axios';
 
 import type { GenericAsyncState } from '../../../types/state';
 import type { Currency } from '../../../types/currency';
 import { currencyApi } from '../../../api/currency';
-import { AxiosError } from 'axios';
 
 type CurrencyState = GenericAsyncState<Map<string, Currency>>;
 
@@ -15,11 +15,13 @@ export function useCurrencyState() {
   });
 
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     const fetchCurrencies = async () => {
       setCurrencyState({ status: 'loading', value: null, error: null });
-
       try {
-        const currencies = await currencyApi.fetchCurrencies();
+        const currencies = await currencyApi.fetchCurrencies(signal);
 
         if (currencies.size > 0) {
           setCurrencyState({
@@ -35,6 +37,8 @@ export function useCurrencyState() {
           });
         }
       } catch (e) {
+        if (isCancel(e)) return;
+
         const code = e instanceof AxiosError ? e.response?.status : null;
 
         setCurrencyState({
@@ -46,6 +50,8 @@ export function useCurrencyState() {
     };
 
     fetchCurrencies();
+
+    return () => controller.abort();
   }, []);
 
   return { currencyState };

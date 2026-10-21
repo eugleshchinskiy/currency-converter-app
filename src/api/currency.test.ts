@@ -49,10 +49,16 @@ describe('currencyApi', () => {
 
   test('fetchCurrencies is called with correct params and returns correct results', async () => {
     vi.mocked(axios.get).mockResolvedValueOnce({ data: currenciesResponse });
-    const result = await currencyApi.fetchCurrencies();
+    const { signal } = new AbortController();
+    const result = await currencyApi.fetchCurrencies(signal);
 
     expect(axios.get).toHaveBeenCalledOnce();
-    expect(axios.get).toHaveBeenCalledWith('/currencies');
+    expect(axios.get).toHaveBeenCalledWith(
+      '/currencies',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+    const [, config] = vi.mocked(axios.get).mock.calls[0];
+    expect(config?.signal).toBe(signal);
     expect(result).toStrictEqual(currenciesMap);
   });
 

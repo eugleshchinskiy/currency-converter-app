@@ -1,8 +1,8 @@
 import axios from '../lib/axios';
 import type { ConvertResponse, Currency, CurrencyResponse } from '../types/currency';
 
-async function fetchCurrencies() {
-  const currenciesResponse = await axios.get<CurrencyResponse>('/currencies');
+async function fetchCurrencies(signal?: AbortSignal) {
+  const currenciesResponse = await axios.get<CurrencyResponse>('/currencies', { signal });
   const currenciesMap = new Map<string, Currency>();
 
   for (const currency of currenciesResponse.data.response) {
