@@ -83,6 +83,25 @@ describe('CurrencyConvertor', () => {
     expect(resultInput).toHaveValue('');
   });
 
+  test('renders the form successfully once currencies are fetched and defaults are missing', async () => {
+    // usd and pln are missing - eur will be selected (the first item in the map)
+    const mapWithOnlyEur = new Map(currenciesResponse);
+    mapWithOnlyEur.delete('USD');
+    mapWithOnlyEur.delete('PLN');
+
+    vi.mocked(currencyApi.fetchCurrencies).mockResolvedValue(mapWithOnlyEur);
+
+    render(prepareRender(<CurrencyConvertor />));
+
+    // wait loading spinner to be removed
+    await waitForElementToBeRemoved(() => screen.getByRole('status'));
+
+    const [fromSelect, toSelect] = screen.getAllByRole('combobox');
+
+    expect(fromSelect).toHaveValue('Euro (EUR)');
+    expect(toSelect).toHaveValue('Euro (EUR)');
+  });
+
   test('allows to change From select to different currencies', async () => {
     const user = userEvent.setup();
     render(prepareRender(<CurrencyConvertor />));
