@@ -51,7 +51,7 @@ export function CurrencyConvertor() {
   const hasErrors = currencyError || convertError;
 
   const currencyOptions = [...currencies.entries()].map(([code, curr]) => ({
-    label: curr.name,
+    label: `${curr.name} (${curr.short_code})`,
     value: code,
   }));
 
