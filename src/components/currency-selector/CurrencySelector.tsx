@@ -8,7 +8,6 @@ type CurrencySelectorProps = {
   value: string;
   onChange: (value: string) => void;
   label?: string;
-  loading?: boolean;
   disabled?: boolean;
 };
 
@@ -17,7 +16,6 @@ export function CurrencySelector({
   value,
   onChange,
   label,
-  loading,
   disabled,
 }: CurrencySelectorProps) {
   const onChangeHandler = (v: string | null) => {
@@ -31,7 +29,6 @@ export function CurrencySelector({
       label={label}
       data={currencyOptions}
       onChange={onChangeHandler}
-      loading={loading}
       disabled={disabled}
       searchable
     />

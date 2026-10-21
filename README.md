@@ -17,6 +17,8 @@ To use locally clone the repository and then:
 
 Open the app at http://localhost:5173/.
 
+Run `npm run check` to type-check, lint, check formatting and run the tests in one go.
+
 ### My considerations and intentional choices
 
 1. Storing an api key on FE side is not safe, it should be stored on BE side (for example Next.js). I used it here with a proxy for simplicity sake.
@@ -25,6 +27,7 @@ Open the app at http://localhost:5173/.
 4. I have not mapped full API response types to API, just some basic fields to be able to complete the task.
 5. I added unit tests for main components and hooks scenarios and use cases.
 6. I implemented very basic responsive design and added some basic error handling for the API (not added ErrorBoundary nor per code error handling).
+7. The conversion result is stored together with the inputs it was fetched for (`from`, `to`, `amount`). When the inputs change, the old result is never shown next to them: the result field shows a loader until the new response arrives. Requests are debounced by 500 ms, and outdated ones are aborted.
 
 ### Future improvements
 

@@ -202,6 +202,76 @@ describe('CurrencyConvertor', () => {
     vi.useRealTimers();
   });
 
+  test('clears the previous result when the amount changes to 0', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.mocked(currencyApi.convertCurrencies).mockResolvedValueOnce({ value: 50 });
+
+    const user = userEvent.setup();
+    render(prepareRender(<CurrencyConvertor />));
+
+    await waitForElementToBeRemoved(() => screen.getByRole('status'));
+
+    const convertValueInput = screen.getByPlaceholderText('Enter the amount');
+    const convertResultInput = screen.getByPlaceholderText('Conversion result');
+    await user.type(convertValueInput, '100');
+
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(convertResultInput).toHaveValue('50 zł');
+
+    await user.clear(convertValueInput);
+    await user.type(convertValueInput, '0');
+
+    // cleared right away, without waiting for the debounce
+    expect(convertResultInput).toHaveValue('');
+
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(convertResultInput).toHaveValue('');
+    expect(currencyApi.convertCurrencies).toHaveBeenCalledOnce();
+    vi.useRealTimers();
+  });
+
+  test('does not show the previous result after changing the target currency', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.mocked(currencyApi.convertCurrencies)
+      .mockResolvedValueOnce({ value: 50 })
+      .mockResolvedValueOnce({ value: 12 });
+
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(prepareRender(<CurrencyConvertor />));
+
+    await waitForElementToBeRemoved(() => screen.getByRole('status'));
+
+    const convertValueInput = screen.getByPlaceholderText('Enter the amount');
+    const convertResultInput = screen.getByPlaceholderText('Conversion result');
+    await user.type(convertValueInput, '100');
+
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(convertResultInput).toHaveValue('50 zł');
+
+    await user.click(screen.getByRole('combobox', { name: 'Convert to' }));
+    const listbox = await screen.findByRole('listbox');
+    await user.click(within(listbox).getByRole('option', { name: 'Euro (EUR)' }));
+
+    // the PLN amount must not be shown with the euro symbol while the new request is pending
+    expect(convertResultInput).toHaveValue('');
+
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(convertResultInput).toHaveValue('12 €');
+    vi.useRealTimers();
+  });
+
   test('correctly handles entered non numeric value', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.mocked(currencyApi.convertCurrencies).mockResolvedValueOnce({ value: 50 });

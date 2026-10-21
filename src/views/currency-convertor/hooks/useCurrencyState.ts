@@ -19,7 +19,6 @@ export function useCurrencyState() {
     const { signal } = controller;
 
     const fetchCurrencies = async () => {
-      setCurrencyState({ status: 'loading', value: null, error: null });
       try {
         const currencies = await currencyApi.fetchCurrencies(signal);
 

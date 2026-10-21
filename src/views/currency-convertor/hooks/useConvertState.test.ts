@@ -62,6 +62,8 @@ describe('useConvertState', () => {
     });
 
     expect(currencyApi.convertCurrencies).not.toHaveBeenCalled();
+    // pending right away, before the debounce fires
+    expect(result.current.convertState.status).toBe('loading');
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(CONVERT_INPUT_DEBOUNCE_MS);
@@ -233,5 +235,60 @@ describe('useConvertState', () => {
       value: null,
       error: 'Error while converting currencies. Try again later.',
     });
+  });
+
+  test('should not show the previous result when the params change', async () => {
+    vi.mocked(currencyApi.convertCurrencies)
+      .mockResolvedValueOnce({ value: 40 })
+      .mockResolvedValueOnce({ value: 9 });
+
+    const { result, rerender } = renderHook((props) => useConvertState(props), {
+      initialProps: { ...baseProps, amount: 10 },
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(CONVERT_INPUT_DEBOUNCE_MS);
+    });
+
+    expect(result.current.convertState).toEqual({ status: 'success', value: 40, error: null });
+
+    rerender({ ...baseProps, amount: 10, to: 'EUR' });
+
+    // the PLN result must not be shown for EUR while the new request is pending
+    expect(result.current.convertState).toEqual({ status: 'loading', value: null, error: null });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(CONVERT_INPUT_DEBOUNCE_MS);
+    });
+
+    expect(currencyApi.convertCurrencies).toHaveBeenLastCalledWith(
+      'USD',
+      'EUR',
+      10,
+      expect.any(AbortSignal),
+    );
+    expect(result.current.convertState).toEqual({ status: 'success', value: 9, error: null });
+  });
+
+  test('should reset to idle right away when the amount becomes invalid', async () => {
+    const { result, rerender } = renderHook((props) => useConvertState(props), {
+      initialProps: { ...baseProps, amount: 10 },
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(CONVERT_INPUT_DEBOUNCE_MS);
+    });
+
+    expect(result.current.convertState.status).toBe('success');
+
+    rerender({ ...baseProps, amount: 0 });
+
+    expect(result.current.convertState).toEqual({ status: 'idle', value: null, error: null });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(CONVERT_INPUT_DEBOUNCE_MS);
+    });
+
+    expect(currencyApi.convertCurrencies).toHaveBeenCalledOnce();
   });
 });

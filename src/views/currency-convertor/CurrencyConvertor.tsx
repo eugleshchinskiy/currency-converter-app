@@ -96,8 +96,8 @@ export function CurrencyConvertor() {
       {hasErrors && (
         <Grid.Col span={12}>
           <Alert variant="light" color="red" radius="sm">
-            <Text>{currencyError}</Text>
-            <Text>{convertError}</Text>
+            {currencyError && <Text>{currencyError}</Text>}
+            {convertError && <Text>{convertError}</Text>}
           </Alert>
         </Grid.Col>
       )}

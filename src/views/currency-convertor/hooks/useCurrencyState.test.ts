@@ -81,4 +81,17 @@ describe('useCurrencyState', () => {
       'Error while fetching currencies. Try again later.',
     );
   });
+
+  test('aborts the request on unmount', () => {
+    vi.mocked(currencyApi.fetchCurrencies).mockReturnValue(new Promise(() => {}));
+
+    const { unmount } = renderHook(() => useCurrencyState());
+    const [signal] = vi.mocked(currencyApi.fetchCurrencies).mock.calls[0];
+
+    expect(signal?.aborted).toBe(false);
+
+    unmount();
+
+    expect(signal?.aborted).toBe(true);
+  });
 });
