@@ -2,7 +2,7 @@ import { NumberInput } from '@mantine/core';
 
 type CurrencyInputProps = {
   value?: string | number;
-  onChange?(value: string | number): void;
+  onChange?: (value: string | number) => void;
   readOnly?: boolean;
   symbol?: string;
   isSymbolPrefix?: boolean;

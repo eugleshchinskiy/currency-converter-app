@@ -4,7 +4,7 @@ import type { Currency } from '../../types/currency';
 type CurrencySelectorProps = {
   currencies: Currency[];
   value: string;
-  onChange(value: string): void;
+  onChange: (value: string) => void;
   label?: string;
   loading?: boolean;
   disabled?: boolean;
