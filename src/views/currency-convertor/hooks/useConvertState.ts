@@ -9,12 +9,12 @@ type ConvertState = GenericAsyncState<number>;
 export const CONVERT_INPUT_DEBOUNCE_MS = 500;
 
 export type UseConvertStateParams = {
-  selectorFrom: string;
-  selectorTo: string;
+  from: string;
+  to: string;
   amount?: string | number;
 };
 
-export function useConvertState({ selectorFrom, selectorTo, amount }: UseConvertStateParams) {
+export function useConvertState({ from, to, amount }: UseConvertStateParams) {
   const [convertState, setConvertState] = useState<ConvertState>({
     status: 'idle',
     value: null,
@@ -28,14 +28,14 @@ export function useConvertState({ selectorFrom, selectorTo, amount }: UseConvert
     const { signal } = abortController;
 
     const convertValues = async () => {
-      if (!selectorFrom || !selectorTo) return;
+      if (!from || !to) return;
 
       if (!isAmountValid) {
         setConvertState({ status: 'idle', value: null, error: null });
         return;
       }
 
-      if (selectorFrom === selectorTo) {
+      if (from === to) {
         setConvertState({
           status: 'success',
           value: amount,
@@ -47,12 +47,7 @@ export function useConvertState({ selectorFrom, selectorTo, amount }: UseConvert
       setConvertState({ status: 'loading', value: null, error: null });
 
       try {
-        const { value } = await currencyApi.convertCurrencies(
-          selectorFrom,
-          selectorTo,
-          amount,
-          signal,
-        );
+        const { value } = await currencyApi.convertCurrencies(from, to, amount, signal);
 
         setConvertState({
           status: 'success',
@@ -78,7 +73,7 @@ export function useConvertState({ selectorFrom, selectorTo, amount }: UseConvert
       clearTimeout(convertTimer);
       abortController.abort();
     };
-  }, [selectorFrom, selectorTo, amount]);
+  }, [from, to, amount]);
 
   return {
     convertState,

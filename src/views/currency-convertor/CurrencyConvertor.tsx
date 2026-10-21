@@ -17,26 +17,21 @@ export function CurrencyConvertor() {
 
   const { currencyState } = useCurrencyState();
   const currencies = currencyState.value || new Map<string, Currency>();
-  const hasDefault = (defaultCode: string) => currencies.has(defaultCode);
-  const currencyFrom =
-    selectedFrom ||
-    (hasDefault(DEFAULT_FROM)
-      ? DEFAULT_FROM
-      : currencies.entries().next().value?.[1]?.short_code || '');
-  const currencyTo =
-    selectedTo ||
-    (hasDefault(DEFAULT_TO)
-      ? DEFAULT_TO
-      : currencies.entries().next().value?.[1]?.short_code || '');
+
+  const pickCurrency = (selected: string, fallback: string) =>
+    selected || (currencies.has(fallback) ? fallback : currencies.keys().next().value || '');
+
+  const fromCode = pickCurrency(selectedFrom, DEFAULT_FROM);
+  const toCode = pickCurrency(selectedTo, DEFAULT_TO);
 
   const { convertState } = useConvertState({
-    selectorFrom: currencyFrom,
-    selectorTo: currencyTo,
+    from: fromCode,
+    to: toCode,
     amount,
   });
 
-  const currencyFromObj = currencies.get(currencyFrom);
-  const currencyToObj = currencies.get(currencyTo);
+  const fromCurrency = currencies.get(fromCode);
+  const toCurrency = currencies.get(toCode);
 
   if (currencyState.status === 'loading') {
     return (
@@ -61,14 +56,14 @@ export function CurrencyConvertor() {
         <Stack gap="md">
           <CurrencySelector
             currencyOptions={currencyOptions}
-            value={currencyFrom}
+            value={fromCode}
             onChange={setSelectedFrom}
             label="Convert from"
             disabled={!!currencyError}
           />
           <CurrencyInput
-            symbol={currencyFromObj?.symbol || currencyFrom}
-            isSymbolPrefix={currencyFromObj?.symbol_first}
+            symbol={fromCurrency?.symbol || fromCode}
+            isSymbolPrefix={fromCurrency?.symbol_first}
             placeholder="Enter the amount"
             value={amount}
             onChange={setAmount}
@@ -82,14 +77,14 @@ export function CurrencyConvertor() {
         <Stack gap="md">
           <CurrencySelector
             currencyOptions={currencyOptions}
-            value={currencyTo}
+            value={toCode}
             onChange={setSelectedTo}
             label="Convert to"
             disabled={!!currencyError}
           />
           <CurrencyInput
-            symbol={currencyToObj?.symbol || selectedTo}
-            isSymbolPrefix={currencyToObj?.symbol_first}
+            symbol={toCurrency?.symbol || toCode}
+            isSymbolPrefix={toCurrency?.symbol_first}
             placeholder="Conversion result"
             value={convertState.value?.toString()}
             readOnly={true}

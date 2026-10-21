@@ -77,8 +77,8 @@ describe('CurrencyConvertor', () => {
     const enterInput = screen.getByPlaceholderText('Enter the amount');
     const resultInput = screen.getByPlaceholderText('Conversion result');
 
-    expect(fromSelect).toHaveValue('US Dollar');
-    expect(toSelect).toHaveValue('Polish Zloty');
+    expect(fromSelect).toHaveValue('US Dollar (USD)');
+    expect(toSelect).toHaveValue('Polish Zloty (PLN)');
     expect(enterInput).toHaveValue('');
     expect(resultInput).toHaveValue('');
   });
@@ -92,10 +92,10 @@ describe('CurrencyConvertor', () => {
     const fromSelect = screen.getByRole('combobox', { name: 'Convert from' });
     await user.click(fromSelect);
     const listbox = await screen.findByRole('listbox');
-    const euroOption = within(listbox).getByRole('option', { name: 'Euro' });
+    const euroOption = within(listbox).getByRole('option', { name: 'Euro (EUR)' });
     await user.click(euroOption);
 
-    expect(fromSelect).toHaveValue('Euro');
+    expect(fromSelect).toHaveValue('Euro (EUR)');
   });
 
   test('allows to change To select to different currencies', async () => {
@@ -107,10 +107,10 @@ describe('CurrencyConvertor', () => {
     const toSelect = screen.getByRole('combobox', { name: 'Convert to' });
     await user.click(toSelect);
     const listbox = await screen.findByRole('listbox');
-    const usdOption = within(listbox).getByRole('option', { name: 'US Dollar' });
+    const usdOption = within(listbox).getByRole('option', { name: 'US Dollar (USD)' });
     await user.click(usdOption);
 
-    expect(toSelect).toHaveValue('US Dollar');
+    expect(toSelect).toHaveValue('US Dollar (USD)');
   });
 
   test('allows to input values', async () => {

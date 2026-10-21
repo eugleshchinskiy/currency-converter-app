@@ -16,8 +16,8 @@ vi.mock('../../../api/currency', () => ({
 }));
 
 const baseProps: UseConvertStateParams = {
-  selectorFrom: 'USD',
-  selectorTo: 'PLN',
+  from: 'USD',
+  to: 'PLN',
   amount: '',
 };
 
@@ -96,8 +96,8 @@ describe('useConvertState', () => {
 
     rerender({
       ...baseProps,
-      selectorFrom: 'USD',
-      selectorTo: 'USD',
+      from: 'USD',
+      to: 'USD',
       amount: 10,
     });
 
