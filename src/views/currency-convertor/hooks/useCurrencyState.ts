@@ -4,19 +4,10 @@ import type { GenericAsyncState } from '../../../types/state';
 import type { Currency } from '../../../types/currency';
 import { currencyApi } from '../../../api/currency';
 import { AxiosError } from 'axios';
-import type { useCurrencySelectors } from './useCurrencySelectors';
 
 type CurrencyState = GenericAsyncState<Currency[]>;
 
-type UseConvertStateParams = Pick<
-  ReturnType<typeof useCurrencySelectors>,
-  'onChangeFrom' | 'onChangeTo'
->;
-
-export const DEFAULT_FROM = 'USD';
-export const DEFAULT_TO = 'PLN';
-
-export function useCurrencyState({ onChangeFrom, onChangeTo }: UseConvertStateParams) {
+export function useCurrencyState() {
   const [currencyState, setCurrencyState] = useState<CurrencyState>({
     status: 'idle',
     value: null,
@@ -36,11 +27,6 @@ export function useCurrencyState({ onChangeFrom, onChangeTo }: UseConvertStatePa
             value: currencies,
             error: null,
           });
-          const hasDefaultFrom = currencies.some(({ short_code }) => short_code === DEFAULT_FROM);
-          const hasDefaultTo = currencies.some(({ short_code }) => short_code === DEFAULT_TO);
-
-          onChangeFrom(hasDefaultFrom ? DEFAULT_FROM : currencies[0].short_code);
-          onChangeTo(hasDefaultTo ? DEFAULT_TO : currencies[0].short_code);
         } else {
           setCurrencyState({
             status: 'error',
@@ -60,7 +46,7 @@ export function useCurrencyState({ onChangeFrom, onChangeTo }: UseConvertStatePa
     };
 
     fetchCurrencies();
-  }, [onChangeFrom, onChangeTo]);
+  }, []);
 
   return { currencyState };
 }

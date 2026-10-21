@@ -2,27 +2,40 @@ import { useMemo, useState } from 'react';
 import { Alert, Center, Grid, Loader, Stack, Text } from '@mantine/core';
 
 import { CurrencySelector } from '../../components/currency-selector/CurrencySelector';
-import { useCurrencySelectors } from './hooks/useCurrencySelectors';
 import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
 import { useConvertState } from './hooks/useConvertState';
 import { useCurrencyState } from './hooks/useCurrencyState';
 
+export const DEFAULT_FROM = 'USD';
+export const DEFAULT_TO = 'PLN';
+
 export function CurrencyConvertor() {
   const [amount, setAmount] = useState<string | number>('');
-  const { selectorFrom, selectorTo, onChangeFrom, onChangeTo } = useCurrencySelectors();
+  const [selectedFrom, setSelectedFrom] = useState('');
+  const [selectedTo, setSelectedTo] = useState('');
+
+  const { currencyState } = useCurrencyState();
+  const currencies = currencyState.value || [];
+  const hasDefault = (defaultCode: string) =>
+    currencies.some(({ short_code }) => short_code === defaultCode);
+  const currencyFrom =
+    selectedFrom || (hasDefault(DEFAULT_FROM) ? DEFAULT_FROM : currencies[0]?.short_code || '');
+  const currencyTo =
+    selectedTo || (hasDefault(DEFAULT_TO) ? DEFAULT_TO : currencies[0]?.short_code || '');
+
   const { convertState } = useConvertState({
-    selectorFrom,
-    selectorTo,
+    selectorFrom: currencyFrom,
+    selectorTo: currencyTo,
     amount,
   });
-  const { currencyState } = useCurrencyState({ onChangeFrom, onChangeTo });
-  const currencyFrom = useMemo(
-    () => currencyState.value?.find(({ short_code }) => short_code === selectorFrom),
-    [currencyState.value, selectorFrom],
+
+  const currencyFromObj = useMemo(
+    () => currencyState.value?.find(({ short_code }) => short_code === currencyFrom),
+    [currencyState.value, currencyFrom],
   );
-  const currencyTo = useMemo(
-    () => currencyState.value?.find(({ short_code }) => short_code === selectorTo),
-    [currencyState.value, selectorTo],
+  const currencyToObj = useMemo(
+    () => currencyState.value?.find(({ short_code }) => short_code === currencyTo),
+    [currencyState.value, currencyTo],
   );
 
   if (currencyState.status === 'loading') {
@@ -33,7 +46,6 @@ export function CurrencyConvertor() {
     );
   }
 
-  const currencies = currencyState.value || [];
   const currencyError = currencyState.error;
   const convertError = convertState.error;
   const hasErrors = currencyError || convertError;
@@ -44,14 +56,14 @@ export function CurrencyConvertor() {
         <Stack gap="md">
           <CurrencySelector
             currencies={currencies}
-            value={selectorFrom}
-            onChange={onChangeFrom}
+            value={currencyFrom}
+            onChange={setSelectedFrom}
             label="Convert from"
             disabled={!!currencyError}
           />
           <CurrencyInput
-            symbol={currencyFrom?.symbol || selectorFrom}
-            isSymbolPrefix={currencyFrom?.symbol_first}
+            symbol={currencyFromObj?.symbol || currencyFrom}
+            isSymbolPrefix={currencyFromObj?.symbol_first}
             placeholder="Enter the amount"
             value={amount}
             onChange={setAmount}
@@ -65,14 +77,14 @@ export function CurrencyConvertor() {
         <Stack gap="md">
           <CurrencySelector
             currencies={currencies}
-            value={selectorTo}
-            onChange={onChangeTo}
+            value={currencyTo}
+            onChange={setSelectedTo}
             label="Convert to"
             disabled={!!currencyError}
           />
           <CurrencyInput
-            symbol={currencyTo?.symbol || selectorTo}
-            isSymbolPrefix={currencyTo?.symbol_first}
+            symbol={currencyToObj?.symbol || selectedTo}
+            isSymbolPrefix={currencyToObj?.symbol_first}
             placeholder="Conversion result"
             value={convertState.value?.toString()}
             readOnly={true}

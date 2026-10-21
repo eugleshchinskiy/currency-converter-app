@@ -3,16 +3,13 @@ import { AxiosError } from 'axios';
 
 import { currencyApi } from '../../../api/currency';
 import { renderHook, waitFor } from '@testing-library/react';
-import { DEFAULT_FROM, DEFAULT_TO, useCurrencyState } from './useCurrencyState';
+import { useCurrencyState } from './useCurrencyState';
 
 vi.mock('../../../api/currency', () => ({
   currencyApi: {
     fetchCurrencies: vi.fn(),
   },
 }));
-
-const onChangeFromMock = vi.fn();
-const onChangeToMock = vi.fn();
 
 const currenciesResponse = [
   {
@@ -38,10 +35,7 @@ describe('useCurrencyState', () => {
     const statuses: string[] = [];
 
     renderHook(() => {
-      const value = useCurrencyState({
-        onChangeFrom: onChangeFromMock,
-        onChangeTo: onChangeToMock,
-      });
+      const value = useCurrencyState();
       statuses.push(value.currencyState.status);
       return value;
     });
@@ -52,12 +46,7 @@ describe('useCurrencyState', () => {
 
   test('correctly calls currencies api and sets the response', async () => {
     vi.mocked(currencyApi.fetchCurrencies).mockResolvedValue(currenciesResponse);
-    const { result } = renderHook(() =>
-      useCurrencyState({
-        onChangeFrom: onChangeFromMock,
-        onChangeTo: onChangeToMock,
-      }),
-    );
+    const { result } = renderHook(() => useCurrencyState());
 
     await waitFor(() => expect(result.current.currencyState.status).toBe('success'));
 
@@ -65,35 +54,10 @@ describe('useCurrencyState', () => {
     expect(result.current.currencyState.value).toStrictEqual(currenciesResponse);
   });
 
-  test('correctly sets default values from currencies response', async () => {
-    vi.mocked(currencyApi.fetchCurrencies).mockResolvedValue(currenciesResponse);
-
-    const { result } = renderHook(() =>
-      useCurrencyState({
-        onChangeFrom: onChangeFromMock,
-        onChangeTo: onChangeToMock,
-      }),
-    );
-
-    await waitFor(() => expect(result.current.currencyState.status).toBe('success'));
-
-    expect(onChangeFromMock).toHaveBeenCalledOnce();
-    expect(onChangeFromMock).toHaveBeenCalledWith(DEFAULT_FROM);
-    expect(onChangeToMock).toHaveBeenCalledOnce();
-    expect(onChangeToMock).toHaveBeenCalledWith(DEFAULT_TO);
-  });
-
   test('correctly handle empty currencies response', async () => {
     vi.mocked(currencyApi.fetchCurrencies).mockResolvedValue([]);
 
-    const { result } = renderHook(() =>
-      useCurrencyState({
-        onChangeFrom: onChangeFromMock,
-        onChangeTo: onChangeToMock,
-      }),
-    );
-
-    console.log(result);
+    const { result } = renderHook(() => useCurrencyState());
 
     await waitFor(() => expect(result.current.currencyState.status).toBe('error'));
 
@@ -102,39 +66,10 @@ describe('useCurrencyState', () => {
     );
   });
 
-  test('correctly handle missing default values in currencies response', async () => {
-    vi.mocked(currencyApi.fetchCurrencies).mockResolvedValue([
-      {
-        short_code: 'EUR',
-        symbol: '€',
-        symbol_first: false,
-      },
-    ]);
-
-    const { result } = renderHook(() =>
-      useCurrencyState({
-        onChangeFrom: onChangeFromMock,
-        onChangeTo: onChangeToMock,
-      }),
-    );
-
-    await waitFor(() => expect(result.current.currencyState.status).toBe('success'));
-
-    expect(onChangeFromMock).toHaveBeenCalledOnce();
-    expect(onChangeFromMock).toHaveBeenCalledWith('EUR');
-    expect(onChangeToMock).toHaveBeenCalledOnce();
-    expect(onChangeToMock).toHaveBeenCalledWith('EUR');
-  });
-
   test('correctly handles network errors', async () => {
     vi.mocked(currencyApi.fetchCurrencies).mockRejectedValue(new AxiosError());
 
-    const { result } = renderHook(() =>
-      useCurrencyState({
-        onChangeFrom: onChangeFromMock,
-        onChangeTo: onChangeToMock,
-      }),
-    );
+    const { result } = renderHook(() => useCurrencyState());
 
     await waitFor(() => expect(result.current.currencyState.status).toBe('error'));
 
