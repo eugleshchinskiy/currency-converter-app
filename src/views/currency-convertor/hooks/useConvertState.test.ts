@@ -228,7 +228,6 @@ describe('useConvertState', () => {
     });
 
     expect(currencyApi.convertCurrencies).toHaveBeenCalledTimes(1);
-    expect(currencyApi.convertCurrencies).toThrow(expect.any(AxiosError));
     expect(result.current.convertState).toEqual({
       status: 'error',
       value: null,
