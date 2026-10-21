@@ -11,7 +11,7 @@ export const CONVERT_INPUT_DEBOUNCE_MS = 500;
 export type UseConvertStateParams = {
   from: string;
   to: string;
-  amount?: string | number;
+  amount: string | number;
 };
 
 export function useConvertState({ from, to, amount }: UseConvertStateParams) {

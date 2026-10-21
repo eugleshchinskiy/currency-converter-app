@@ -13,10 +13,10 @@ async function fetchCurrencies(signal?: AbortSignal) {
 }
 
 async function convertCurrencies(from: string, to: string, amount: number, signal?: AbortSignal) {
-  const convertResponse = await axios.get<ConvertResponse>(
-    `/convert?from=${from}&to=${to}&amount=${amount}`,
-    { signal },
-  );
+  const convertResponse = await axios.get<ConvertResponse>('/convert', {
+    signal,
+    params: { from, to, amount },
+  });
   return convertResponse.data.response;
 }
 

@@ -40,19 +40,12 @@ describe('useCurrencyState', () => {
     vi.resetAllMocks();
   });
 
-  test('correctly starts in idle state and transitions to loading', () => {
+  test('correctly starts in loading state', () => {
     vi.mocked(currencyApi.fetchCurrencies).mockReturnValue(new Promise(() => {}));
 
-    const statuses: string[] = [];
+    const { result } = renderHook(() => useCurrencyState());
 
-    renderHook(() => {
-      const value = useCurrencyState();
-      statuses.push(value.currencyState.status);
-      return value;
-    });
-
-    expect(statuses[0]).toBe('idle');
-    expect(statuses[1]).toBe('loading');
+    expect(result.current.currencyState.status).toBe('loading');
   });
 
   test('correctly calls currencies api and sets the response', async () => {

@@ -9,7 +9,7 @@ type CurrencyState = GenericAsyncState<Map<string, Currency>>;
 
 export function useCurrencyState() {
   const [currencyState, setCurrencyState] = useState<CurrencyState>({
-    status: 'idle',
+    status: 'loading',
     value: null,
     error: null,
   });

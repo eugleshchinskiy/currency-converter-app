@@ -68,12 +68,13 @@ describe('currencyApi', () => {
     const result = await currencyApi.convertCurrencies('USD', 'PLN', 10, signal);
 
     expect(axios.get).toHaveBeenCalledOnce();
-    expect(axios.get).toHaveBeenCalledWith(
-      '/convert?from=USD&to=PLN&amount=10',
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
-    );
     const [, config] = vi.mocked(axios.get).mock.calls[0];
     expect(config?.signal).toBe(signal);
+    expect(config?.params).toStrictEqual({
+      from: 'USD',
+      to: 'PLN',
+      amount: 10,
+    });
     expect(result.value).toEqual(40);
   });
 });

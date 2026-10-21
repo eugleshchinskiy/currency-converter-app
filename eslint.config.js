@@ -19,7 +19,7 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      'no-console': 'warn',
+      'no-console': 'error',
     },
   },
 ]);
