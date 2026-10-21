@@ -1,23 +1,19 @@
+import { useMemo, useState } from 'react';
 import { Alert, Center, Grid, Loader, Stack, Text } from '@mantine/core';
 
 import { CurrencySelector } from '../../components/currency-selector/CurrencySelector';
 import { useCurrencySelectors } from './hooks/useCurrencySelectors';
 import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
-import { useConvertInput } from './hooks/useConvertInput';
 import { useConvertState } from './hooks/useConvertState';
 import { useCurrencyState } from './hooks/useCurrencyState';
-import { useMemo } from 'react';
 
 export function CurrencyConvertor() {
+  const [amount, setAmount] = useState<string | number>('');
   const { selectorFrom, selectorTo, onChangeFrom, onChangeTo } = useCurrencySelectors();
-  const { convertValue, convertValueNumber, isConvertValueValid, onChangeConvertValue } =
-    useConvertInput();
   const { convertState } = useConvertState({
-    convertValue,
-    isConvertValueValid,
-    convertValueNumber,
     selectorFrom,
     selectorTo,
+    amount,
   });
   const { currencyState } = useCurrencyState({ onChangeFrom, onChangeTo });
   const currencyFrom = useMemo(
@@ -57,8 +53,8 @@ export function CurrencyConvertor() {
             symbol={currencyFrom?.symbol || selectorFrom}
             isSymbolPrefix={currencyFrom?.symbol_first}
             placeholder="Enter the amount"
-            value={convertValue}
-            onChange={onChangeConvertValue}
+            value={amount}
+            onChange={setAmount}
             disabled={!!currencyError}
             label="Please enter value below"
           />

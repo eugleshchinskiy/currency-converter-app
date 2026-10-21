@@ -4,26 +4,18 @@ import { AxiosError } from 'axios';
 import { currencyApi } from '../../../api/currency';
 import axios from '../../../lib/axios';
 import type { GenericAsyncState } from '../../../types/state';
-import type { useConvertInput } from './useConvertInput';
-import type { useCurrencySelectors } from './useCurrencySelectors';
 
 type ConvertState = GenericAsyncState<number>;
 
 export const CONVERT_INPUT_DEBOUNCE_MS = 500;
 
-export type UseConvertStateParams = Pick<
-  ReturnType<typeof useConvertInput>,
-  'convertValue' | 'isConvertValueValid' | 'convertValueNumber'
-> &
-  Pick<ReturnType<typeof useCurrencySelectors>, 'selectorFrom' | 'selectorTo'>;
+export type UseConvertStateParams = {
+  selectorFrom: string;
+  selectorTo: string;
+  amount?: string | number;
+};
 
-export function useConvertState({
-  convertValue,
-  isConvertValueValid,
-  convertValueNumber,
-  selectorFrom,
-  selectorTo,
-}: UseConvertStateParams) {
+export function useConvertState({ selectorFrom, selectorTo, amount }: UseConvertStateParams) {
   const [convertState, setConvertState] = useState<ConvertState>({
     status: 'idle',
     value: null,
@@ -31,20 +23,22 @@ export function useConvertState({
   });
 
   useEffect(() => {
+    const isAmountValid = typeof amount === 'number' && amount > 0;
+
     const abortController = new AbortController();
     const { signal } = abortController;
 
     const convertValues = async () => {
-      if (convertValue === '') {
+      if (amount === '') {
         setConvertState({ status: 'idle', value: null, error: null });
         return;
       }
-      if (!isConvertValueValid || !selectorFrom || !selectorTo) return;
+      if (!isAmountValid || !selectorFrom || !selectorTo) return;
 
       if (selectorFrom === selectorTo) {
         setConvertState({
           status: 'success',
-          value: convertValueNumber as number,
+          value: amount,
           error: null,
         });
         return;
@@ -56,7 +50,7 @@ export function useConvertState({
         const { value } = await currencyApi.convertCurrencies(
           selectorFrom,
           selectorTo,
-          convertValueNumber as number,
+          amount,
           signal,
         );
 
@@ -84,7 +78,7 @@ export function useConvertState({
       clearTimeout(convertTimer);
       abortController.abort();
     };
-  }, [isConvertValueValid, convertValueNumber, selectorFrom, selectorTo, convertValue]);
+  }, [selectorFrom, selectorTo, amount]);
 
   return {
     convertState,

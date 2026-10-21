@@ -16,11 +16,9 @@ vi.mock('../../../api/currency', () => ({
 }));
 
 const baseProps: UseConvertStateParams = {
-  convertValue: '',
-  isConvertValueValid: false,
-  convertValueNumber: null,
   selectorFrom: 'USD',
   selectorTo: 'PLN',
+  amount: '',
 };
 
 describe('useConvertState', () => {
@@ -60,9 +58,7 @@ describe('useConvertState', () => {
 
     rerender({
       ...baseProps,
-      convertValue: '10',
-      isConvertValueValid: true,
-      convertValueNumber: 10,
+      amount: 10,
     });
 
     expect(currencyApi.convertCurrencies).not.toHaveBeenCalled();
@@ -102,9 +98,7 @@ describe('useConvertState', () => {
       ...baseProps,
       selectorFrom: 'USD',
       selectorTo: 'USD',
-      convertValue: '10',
-      isConvertValueValid: true,
-      convertValueNumber: 10,
+      amount: 10,
     });
 
     expect(currencyApi.convertCurrencies).not.toHaveBeenCalled();
@@ -130,9 +124,7 @@ describe('useConvertState', () => {
 
     rerender({
       ...baseProps,
-      convertValue: '10',
-      isConvertValueValid: true,
-      convertValueNumber: 10,
+      amount: 10,
     });
 
     expect(currencyApi.convertCurrencies).not.toHaveBeenCalled();
@@ -140,15 +132,11 @@ describe('useConvertState', () => {
     // multiple calls for debounce with different params
     rerender({
       ...baseProps,
-      convertValue: '100',
-      isConvertValueValid: true,
-      convertValueNumber: 100,
+      amount: 100,
     });
     rerender({
       ...baseProps,
-      convertValue: '10001',
-      isConvertValueValid: true,
-      convertValueNumber: 10001,
+      amount: 10001,
     });
 
     await act(async () => {
@@ -184,9 +172,7 @@ describe('useConvertState', () => {
 
     rerender({
       ...baseProps,
-      convertValue: '10',
-      isConvertValueValid: true,
-      convertValueNumber: 10,
+      amount: 10,
     });
 
     expect(currencyApi.convertCurrencies).not.toHaveBeenCalled();
@@ -196,12 +182,10 @@ describe('useConvertState', () => {
       await vi.advanceTimersByTimeAsync(CONVERT_INPUT_DEBOUNCE_MS);
     });
 
-    // run the second call call
+    // run the second call
     rerender({
       ...baseProps,
-      convertValue: '100',
-      isConvertValueValid: true,
-      convertValueNumber: 100,
+      amount: 100,
     });
 
     // extract signal from first call, third arg and check if is was aborted
@@ -234,9 +218,7 @@ describe('useConvertState', () => {
 
     rerender({
       ...baseProps,
-      convertValue: '10',
-      isConvertValueValid: true,
-      convertValueNumber: 10,
+      amount: 10,
     });
 
     expect(currencyApi.convertCurrencies).not.toHaveBeenCalled();
