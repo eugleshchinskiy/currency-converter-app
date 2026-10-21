@@ -28,11 +28,12 @@ export function useConvertState({ selectorFrom, selectorTo, amount }: UseConvert
     const { signal } = abortController;
 
     const convertValues = async () => {
-      if (amount === '') {
+      if (!selectorFrom || !selectorTo) return;
+
+      if (!isAmountValid) {
         setConvertState({ status: 'idle', value: null, error: null });
         return;
       }
-      if (!isAmountValid || !selectorFrom || !selectorTo) return;
 
       if (selectorFrom === selectorTo) {
         setConvertState({
