@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { AxiosError } from 'axios';
+import { AxiosError, isCancel } from 'axios';
 
 import { currencyApi } from '../../../api/currency';
-import axios from '../../../lib/axios';
 import type { GenericAsyncState } from '../../../types/state';
 
 type ConvertState = GenericAsyncState<number>;
@@ -60,7 +59,7 @@ export function useConvertState({ selectorFrom, selectorTo, amount }: UseConvert
           error: null,
         });
       } catch (e) {
-        if (axios.isCancel(e)) return;
+        if (isCancel(e)) return;
 
         const code = e instanceof AxiosError ? e.response?.status : null;
 

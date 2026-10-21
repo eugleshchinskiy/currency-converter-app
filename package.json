@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest"
+    "test": "vitest",
+    "check": "tsc -b && eslint . --max-warnings 0 && prettier --check . && vitest run"
   },
   "dependencies": {
     "@mantine/core": "^9.7.2",

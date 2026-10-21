@@ -2,8 +2,8 @@ import { Select } from '@mantine/core';
 
 type CurrencySelectorProps = {
   currencyOptions: {
-    label: string
-    value: string
+    label: string;
+    value: string;
   }[];
   value: string;
   onChange: (value: string) => void;
