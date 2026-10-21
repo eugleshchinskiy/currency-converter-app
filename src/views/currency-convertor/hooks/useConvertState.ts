@@ -14,46 +14,31 @@ export type UseConvertStateParams = {
   amount: string | number;
 };
 
-export function useConvertState({ from, to, amount }: UseConvertStateParams) {
+export function useConvertState({ from, to, amount }: UseConvertStateParams): {
+  convertState: ConvertState;
+} {
   const [convertState, setConvertState] = useState<ConvertState>({
     status: 'idle',
     value: null,
     error: null,
   });
+  const [resultKey, setResultKey] = useState('');
+
+  const isAmountValid = typeof amount === 'number' && amount > 0;
+  const currentKey = `${from}-${to}-${amount}`;
 
   useEffect(() => {
-    const isAmountValid = typeof amount === 'number' && amount > 0;
+    if (!isAmountValid || !from || !to || from === to) return;
 
     const abortController = new AbortController();
     const { signal } = abortController;
 
     const convertValues = async () => {
-      if (!from || !to) return;
-
-      if (!isAmountValid) {
-        setConvertState({ status: 'idle', value: null, error: null });
-        return;
-      }
-
-      if (from === to) {
-        setConvertState({
-          status: 'success',
-          value: amount,
-          error: null,
-        });
-        return;
-      }
-
-      setConvertState({ status: 'loading', value: null, error: null });
-
       try {
         const { value } = await currencyApi.convertCurrencies(from, to, amount, signal);
 
-        setConvertState({
-          status: 'success',
-          value,
-          error: null,
-        });
+        setConvertState({ status: 'success', value, error: null });
+        setResultKey(currentKey);
       } catch (e) {
         if (isCancel(e)) return;
 
@@ -64,6 +49,7 @@ export function useConvertState({ from, to, amount }: UseConvertStateParams) {
           value: null,
           error: `Error while converting currencies. Try again later.${code ? ` Error code: ${code}.` : ''}`,
         });
+        setResultKey(currentKey);
       }
     };
 
@@ -73,9 +59,17 @@ export function useConvertState({ from, to, amount }: UseConvertStateParams) {
       clearTimeout(convertTimer);
       abortController.abort();
     };
-  }, [from, to, amount]);
+  }, [from, to, amount, isAmountValid, currentKey]);
 
-  return {
-    convertState,
-  };
+  if (!isAmountValid || !from || !to) {
+    return { convertState: { status: 'idle', value: null, error: null } };
+  }
+  if (from === to) {
+    return { convertState: { status: 'success', value: amount, error: null } };
+  }
+  if (resultKey !== currentKey) {
+    return { convertState: { status: 'loading', value: null, error: null } };
+  }
+
+  return { convertState };
 }
