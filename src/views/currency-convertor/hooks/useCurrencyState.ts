@@ -5,7 +5,7 @@ import type { Currency } from '../../../types/currency';
 import { currencyApi } from '../../../api/currency';
 import { AxiosError } from 'axios';
 
-type CurrencyState = GenericAsyncState<Currency[]>;
+type CurrencyState = GenericAsyncState<Map<string, Currency>>;
 
 export function useCurrencyState() {
   const [currencyState, setCurrencyState] = useState<CurrencyState>({
@@ -21,7 +21,7 @@ export function useCurrencyState() {
       try {
         const currencies = await currencyApi.fetchCurrencies();
 
-        if (currencies.length > 0) {
+        if (currencies.size > 0) {
           setCurrencyState({
             status: 'success',
             value: currencies,

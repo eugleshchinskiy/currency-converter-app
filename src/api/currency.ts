@@ -1,9 +1,15 @@
 import axios from '../lib/axios';
-import type { ConvertResponse, CurrencyResponse } from '../types/currency';
+import type { ConvertResponse, Currency, CurrencyResponse } from '../types/currency';
 
 async function fetchCurrencies() {
   const currenciesResponse = await axios.get<CurrencyResponse>('/currencies');
-  return currenciesResponse.data.response;
+  const currenciesMap = new Map<string, Currency>();
+
+  for (const currency of currenciesResponse.data.response) {
+    currenciesMap.set(currency.short_code, currency);
+  }
+
+  return currenciesMap;
 }
 
 async function convertCurrencies(from: string, to: string, amount: number, signal?: AbortSignal) {

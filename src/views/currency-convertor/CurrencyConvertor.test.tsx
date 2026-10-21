@@ -1,11 +1,12 @@
 import { act, render, screen, waitForElementToBeRemoved, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { AxiosError } from 'axios';
 
 import { CurrencyConvertor } from './CurrencyConvertor';
 import { currencyApi } from '../../api/currency';
 import { MantineProvider } from '@mantine/core';
-import { AxiosError } from 'axios';
+import type { Currency } from '../../types/currency';
 
 vi.mock('../../api/currency', () => ({
   currencyApi: {
@@ -14,23 +15,38 @@ vi.mock('../../api/currency', () => ({
   },
 }));
 
-const currenciesResponse = [
-  {
-    short_code: 'USD',
-    symbol: '$',
-    symbol_first: true,
-  },
-  {
-    short_code: 'PLN',
-    symbol: 'zł',
-    symbol_first: false,
-  },
-  {
-    short_code: 'EUR',
-    symbol: '€',
-    symbol_first: false,
-  },
-];
+const currenciesResponse = new Map<string, Currency>([
+  [
+    'USD',
+    {
+      id: 1,
+      short_code: 'USD',
+      name: 'US Dollar',
+      symbol: '$',
+      symbol_first: true,
+    },
+  ],
+  [
+    'PLN',
+    {
+      id: 2,
+      short_code: 'PLN',
+      name: 'Polish Zloty',
+      symbol: 'zł',
+      symbol_first: false,
+    },
+  ],
+  [
+    'EUR',
+    {
+      id: 3,
+      short_code: 'EUR',
+      name: 'Euro',
+      symbol: '€',
+      symbol_first: false,
+    },
+  ],
+]);
 
 function prepareRender(child: React.ReactNode) {
   return <MantineProvider env="test">{child}</MantineProvider>;
@@ -61,8 +77,8 @@ describe('CurrencyConvertor', () => {
     const enterInput = screen.getByPlaceholderText('Enter the amount');
     const resultInput = screen.getByPlaceholderText('Conversion result');
 
-    expect(fromSelect).toHaveValue('USD');
-    expect(toSelect).toHaveValue('PLN');
+    expect(fromSelect).toHaveValue('US Dollar');
+    expect(toSelect).toHaveValue('Polish Zloty');
     expect(enterInput).toHaveValue('');
     expect(resultInput).toHaveValue('');
   });
@@ -76,10 +92,10 @@ describe('CurrencyConvertor', () => {
     const fromSelect = screen.getByRole('combobox', { name: 'Convert from' });
     await user.click(fromSelect);
     const listbox = await screen.findByRole('listbox');
-    const euroOption = within(listbox).getByRole('option', { name: 'EUR' });
+    const euroOption = within(listbox).getByRole('option', { name: 'Euro' });
     await user.click(euroOption);
 
-    expect(fromSelect).toHaveValue('EUR');
+    expect(fromSelect).toHaveValue('Euro');
   });
 
   test('allows to change To select to different currencies', async () => {
@@ -91,10 +107,10 @@ describe('CurrencyConvertor', () => {
     const toSelect = screen.getByRole('combobox', { name: 'Convert to' });
     await user.click(toSelect);
     const listbox = await screen.findByRole('listbox');
-    const usdOption = within(listbox).getByRole('option', { name: 'USD' });
+    const usdOption = within(listbox).getByRole('option', { name: 'US Dollar' });
     await user.click(usdOption);
 
-    expect(toSelect).toHaveValue('USD');
+    expect(toSelect).toHaveValue('US Dollar');
   });
 
   test('allows to input values', async () => {

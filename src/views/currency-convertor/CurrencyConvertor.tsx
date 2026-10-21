@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Alert, Center, Grid, Loader, Stack, Text } from '@mantine/core';
 
 import { CurrencySelector } from '../../components/currency-selector/CurrencySelector';
 import { CurrencyInput } from '../../components/currency-input/CurrencyInput';
 import { useConvertState } from './hooks/useConvertState';
 import { useCurrencyState } from './hooks/useCurrencyState';
+import type { Currency } from '../../types/currency';
 
 export const DEFAULT_FROM = 'USD';
 export const DEFAULT_TO = 'PLN';
@@ -15,13 +16,18 @@ export function CurrencyConvertor() {
   const [selectedTo, setSelectedTo] = useState('');
 
   const { currencyState } = useCurrencyState();
-  const currencies = currencyState.value || [];
-  const hasDefault = (defaultCode: string) =>
-    currencies.some(({ short_code }) => short_code === defaultCode);
+  const currencies = currencyState.value || new Map<string, Currency>();
+  const hasDefault = (defaultCode: string) => currencies.has(defaultCode);
   const currencyFrom =
-    selectedFrom || (hasDefault(DEFAULT_FROM) ? DEFAULT_FROM : currencies[0]?.short_code || '');
+    selectedFrom ||
+    (hasDefault(DEFAULT_FROM)
+      ? DEFAULT_FROM
+      : currencies.entries().next().value?.[1]?.short_code || '');
   const currencyTo =
-    selectedTo || (hasDefault(DEFAULT_TO) ? DEFAULT_TO : currencies[0]?.short_code || '');
+    selectedTo ||
+    (hasDefault(DEFAULT_TO)
+      ? DEFAULT_TO
+      : currencies.entries().next().value?.[1]?.short_code || '');
 
   const { convertState } = useConvertState({
     selectorFrom: currencyFrom,
@@ -29,14 +35,8 @@ export function CurrencyConvertor() {
     amount,
   });
 
-  const currencyFromObj = useMemo(
-    () => currencyState.value?.find(({ short_code }) => short_code === currencyFrom),
-    [currencyState.value, currencyFrom],
-  );
-  const currencyToObj = useMemo(
-    () => currencyState.value?.find(({ short_code }) => short_code === currencyTo),
-    [currencyState.value, currencyTo],
-  );
+  const currencyFromObj = currencies.get(currencyFrom);
+  const currencyToObj = currencies.get(currencyTo);
 
   if (currencyState.status === 'loading') {
     return (
@@ -50,12 +50,17 @@ export function CurrencyConvertor() {
   const convertError = convertState.error;
   const hasErrors = currencyError || convertError;
 
+  const currencyOptions = [...currencies.entries()].map(([code, curr]) => ({
+    label: curr.name,
+    value: code,
+  }));
+
   return (
     <Grid>
       <Grid.Col span={{ base: 12, sm: 6 }}>
         <Stack gap="md">
           <CurrencySelector
-            currencies={currencies}
+            currencyOptions={currencyOptions}
             value={currencyFrom}
             onChange={setSelectedFrom}
             label="Convert from"
@@ -76,7 +81,7 @@ export function CurrencyConvertor() {
       <Grid.Col span={{ base: 12, sm: 6 }}>
         <Stack gap="md">
           <CurrencySelector
-            currencies={currencies}
+            currencyOptions={currencyOptions}
             value={currencyTo}
             onChange={setSelectedTo}
             label="Convert to"

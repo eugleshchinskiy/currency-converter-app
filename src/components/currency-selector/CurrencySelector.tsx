@@ -1,8 +1,10 @@
 import { Select } from '@mantine/core';
-import type { Currency } from '../../types/currency';
 
 type CurrencySelectorProps = {
-  currencies: Currency[];
+  currencyOptions: {
+    label: string
+    value: string
+  }[];
   value: string;
   onChange: (value: string) => void;
   label?: string;
@@ -11,7 +13,7 @@ type CurrencySelectorProps = {
 };
 
 export function CurrencySelector({
-  currencies,
+  currencyOptions,
   value,
   onChange,
   label,
@@ -27,7 +29,7 @@ export function CurrencySelector({
     <Select
       value={value}
       label={label}
-      data={currencies.map((c) => c.short_code)}
+      data={currencyOptions}
       onChange={onChangeHandler}
       loading={loading}
       disabled={disabled}

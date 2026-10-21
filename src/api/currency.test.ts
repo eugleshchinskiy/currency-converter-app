@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import axios from '../lib/axios';
 import { currencyApi } from './currency';
+import type { Currency, CurrencyResponse } from '../types/currency';
 
 vi.mock('../lib/axios', () => ({
   default: {
@@ -9,18 +10,37 @@ vi.mock('../lib/axios', () => ({
   },
 }));
 
-const currenciesResponse = [
-  {
-    short_code: 'USD',
-    symbol: '$',
-    symbol_first: true,
-  },
-  {
-    short_code: 'PLN',
-    symbol: 'zł',
-    symbol_first: false,
-  },
-];
+const currenciesMap = new Map<string, Currency>([
+  [
+    'USD',
+    {
+      id: 1,
+      short_code: 'USD',
+      name: 'US Dollar',
+      symbol: '$',
+      symbol_first: true,
+    },
+  ],
+  [
+    'PLN',
+    {
+      id: 2,
+      short_code: 'PLN',
+      name: 'Polish Zloty',
+      symbol: 'zł',
+      symbol_first: false,
+    },
+  ],
+]);
+
+const currenciesResponse: CurrencyResponse = {
+  response: [],
+};
+
+for (const [, curr] of currenciesMap.entries()) {
+  currenciesResponse.response.push(curr);
+  currenciesResponse[curr.id - 1] = curr;
+}
 
 describe('currencyApi', () => {
   beforeEach(() => {
@@ -28,12 +48,12 @@ describe('currencyApi', () => {
   });
 
   test('fetchCurrencies is called with correct params and returns correct results', async () => {
-    vi.mocked(axios.get).mockResolvedValueOnce({ data: { response: currenciesResponse } });
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: currenciesResponse });
     const result = await currencyApi.fetchCurrencies();
 
     expect(axios.get).toHaveBeenCalledOnce();
     expect(axios.get).toHaveBeenCalledWith('/currencies');
-    expect(result).toStrictEqual(currenciesResponse);
+    expect(result).toStrictEqual(currenciesMap);
   });
 
   test('convertCurrencies is called with correct params and returns correct results', async () => {
